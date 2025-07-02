@@ -27,7 +27,6 @@ docname: draft-openid-ida-security-profile-latest
 submissiontype: "independent"
 number:
 date:
-consensus: true
 v: 3
 #area: AREA
 workgroup: eKYC-IDA
