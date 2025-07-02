@@ -8,17 +8,17 @@ submissiontype: "independent"
 number:
 date:
 v: 3
-#area: AREA
-workgroup: eKYC-IDA
+# area: AREA
+# workgroup: eKYC-IDA
 keyword:
  - identity assurance
 venue:
-  group: eKYC-IDA
-  type: Working Group
-  mail: openid-specs-ekyc-ida@lists.openid.net
-  arch: https://openid.net/wg/ekyc-ida/
-  github: oktadev/openid-ida-oidc-security-profile
-  latest: https://github.com/oktadev/openid-ida-oidc-security-profile
+#  group: eKYC-IDA
+#  type: Working Group
+#  mail: openid-specs-ekyc-ida@lists.openid.net
+#  arch: https://openid.net/wg/ekyc-ida/
+  github: "oktadev/openid-ida-oidc-security-profile"
+  latest: "https://oktadev.github.io/openid-ida-oidc-security-profile/draft-openid-ida-security-profile.html"
 
 author:
  -
