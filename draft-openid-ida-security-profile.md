@@ -19,41 +19,54 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
+title: "Identity Assurance Profile for OpenID Connect"
+abbrev: "IDA Profile for OIDC"
 category: info
 
-docname: draft-todo-yourname-protocol-latest
-submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
+docname: draft-openid-ida-security-profile-latest
+submissiontype: "independent"
 number:
 date:
 consensus: true
 v: 3
-area: AREA
-workgroup: WG Working Group
+#area: AREA
+workgroup: eKYC-IDA
 keyword:
- - next generation
- - unicorn
- - sparkling distributed ledger
+ - identity assurance
 venue:
-  group: WG
+  group: eKYC-IDA
   type: Working Group
-  mail: WG@example.com
-  arch: https://example.com/WG
-  github: USER/REPO
-  latest: https://example.com/LATEST
+  mail: openid-specs-ekyc-ida@lists.openid.net
+  arch: https://openid.net/wg/ekyc-ida/
+  github: oktadev/openid-ida-oidc-security-profile
+  latest: https://github.com/oktadev/openid-ida-oidc-security-profile
 
 author:
  -
-    fullname: Your Name Here
-    organization: Your Organization Here
-    email: your.email@example.com
+    fullname: Scott Bermon
+    organization: Okta
+    email: scott.bermon@okta.com
+ -
+    fullname: Aaron Parecki
+    organization: Okta
+    url: https://aaronparecki.com
 
 normative:
 
+  OpenID:
+    title: OpenID Connect Core 1.0 incorporating errata set 2
+    target: https://openid.net/specs/openid-connect-core-1_0.html
+    date: December 15, 2023
+    author:
+      - ins: N. Sakimura
+      - ins: J. Bradley
+      - ins: M. Jones
+      - ins: B. de Medeiros
+      - ins: C. Mortimore
+
 informative:
 
-...
+
 
 --- abstract
 
