@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Identity Assurance Profile for OpenID Connect</title>
+<meta content="Scott Bermon" name="author">
+<meta content="Aaron Parecki" name="author">
+<meta content="
+       This document defines an Identity Assurance Profile for OpenID Connect that establishes security requirements and best practices for a relying party to generate an identity verification request and receive identity assurance from an OpenID provider. 
+       The profile builds upon OpenID Connect Core 1.0 and specifies additional constraints, mandatory features, and security considerations necessary for identity assurance use cases where verified identity attributes are required. This specification leverages OpenID Connect for Identity Assurance (OIDC4IA) mechanisms to enable standardized communication of identity verification requirements and assurance levels between relying parties and identity providers. An extension to the Verified Claims to support fuzzy matching of verified claims is also defined to accommodate minor discrepancies in user-provided data. 
+    " name="description">
+<meta content="xml2rfc 3.29.0" name="generator">
+<meta content="identity assurance" name="keyword">
+<meta content="draft-openid-ida-security-profile-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.29.0
+    Python 3.12.11
+    ConfigArgParse 1.7
+    google-i18n-address 3.1.1
+    intervaltree 3.1.0
+    Jinja2 3.1.6
+    lxml 5.3.1
+    platformdirs 4.3.8
+    pycountry 24.6.1
+    PyYAML 6.0.2
+    requests 2.32.4
+    setuptools 80.9.0
+    wcwidth 0.2.13
+-->
+<link href="draft-openid-ida-security-profile.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+/* font-family isn't space-separated, but =~ will have to do */
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+    }
+  }
+  &.olPercent > dt {
+    float: none;
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+}
+dl:not(.dlNewline) > dt {
+  float: left;
+  margin-right: 2ch;
+  min-width: 8ch;
+}
+dl > dd {
+  margin-bottom: .8em;
+  margin-left: var(--indent) !important; /* stupid element overrides */
+  min-height: 2ex;
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href].selfRef, .iref + a[href].internal {
+  color: var(--text-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) p {
+    margin: -2px 0;
+    max-height: 0;
+    transition: max-height 2s ease, margin 0.5s ease 0.5s;
+    overflow: hidden;
+  }
+  :is(#status-of-memo, #copyright):hover p,
+  :is(#status-of-memo, #copyright) h2:target ~ p {
+    margin: 0.5em 0;
+    max-height: 500px;
+    overflow: auto;
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+}
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+/* Comments */
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc nav {
+    font-family: var(--font-title);
+    font-weight: 360;
+    & > ul { margin-bottom: 2em; }
+    & ul {
+      margin: 0 0 0 4px;
+      & :is(p, li) {
+        margin: 2px 0;
+      }
+    }
+  }
+  #toc a.toplink {
+    float: right;
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+    &::before { /* css hamburger */
+      float: right;
+      position: relative;
+      width: 1em;
+      height: 1px;
+      left: -164px;
+      margin: 8px 0 0 0;
+      background: white none repeat scroll 0 0;
+      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+      content: "";
+    }
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active {
+    opacity: 1;
+    & nav { display: block; }
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:is(:link, :focus, :hover),
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin: 2px 0.5em 0;
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+  #toc a.toplink {
+    margin: 8px 0.5em 0;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg :is([stroke="black"], [stroke^="#000"]) {
+  stroke: var(--text-color);
+}
+svg :is([stroke="white"], [stroke^="#fff"]) {
+  stroke: var(--background-color);
+}
+svg :is([fill="black"], [fill^="#000"], :not([fill])) {
+  fill: var(--text-color);
+}
+svg :is([fill="white"], [fill^="#fff"]) {
+  fill: var(--background-color);
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">IDA Profile for OIDC</td>
+<td class="right">July 2025</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Bermon &amp; Parecki</td>
+<td class="center">Expires 8 January 2026</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">eKYC-IDA</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-openid-ida-security-profile-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2025-07-07" class="published">7 July 2025</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Informational</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2026-01-08">8 January 2026</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">S. Bermon</div>
+<div class="org">Okta</div>
+</div>
+<div class="author">
+      <div class="author-name">A. Parecki</div>
+<div class="org">Okta</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Identity Assurance Profile for OpenID Connect</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This document defines an Identity Assurance Profile for OpenID Connect that establishes security requirements and best practices for a relying party to generate an identity verification request and receive identity assurance from an OpenID provider.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">The profile builds upon OpenID Connect Core 1.0 and specifies additional constraints, mandatory features, and security considerations necessary for identity assurance use cases where verified identity attributes are required. This specification leverages OpenID Connect for Identity Assurance (OIDC4IA) mechanisms to enable standardized communication of identity verification requirements and assurance levels between relying parties and identity providers. An extension to the Verified Claims to support fuzzy matching of verified claims is also defined to accommodate minor discrepancies in user-provided data.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="https://oktadev.github.io/openid-ida-oidc-security-profile/draft-openid-ida-security-profile.html">https://oktadev.github.io/openid-ida-oidc-security-profile/draft-openid-ida-security-profile.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-openid-ida-security-profile/">https://datatracker.ietf.org/doc/draft-openid-ida-security-profile/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">
+        Discussion of this document takes place on the
+        eKYC-IDA Working Group mailing list (<span><a href="mailto:openid-specs-ekyc-ida@lists.openid.net">mailto:openid-specs-ekyc-ida@lists.openid.net</a></span>),
+        which is archived at <span><a href="https://openid.net/wg/ekyc-ida/">https://openid.net/wg/ekyc-ida/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/oktadev/openid-ida-oidc-security-profile">https://github.com/oktadev/openid-ida-oidc-security-profile</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 8 January 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2025 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-relying-party-profile-for-i" class="internal xref">Relying Party Profile for Identity Assurance</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-request-to-pushed-authoriza" class="internal xref">Request to Pushed Authorization Request (PAR) Endpoint</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.1">
+                    <p id="section-toc.1-1.2.2.1.2.1.1" class="keepWithNext"><a href="#section-2.1.1" class="auto internal xref">2.1.1</a>.  <a href="#name-request-parameters" class="internal xref">Request Parameters</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.2">
+                    <p id="section-toc.1-1.2.2.1.2.2.1" class="keepWithNext"><a href="#section-2.1.2" class="auto internal xref">2.1.2</a>.  <a href="#name-example-post-oauth2-par-req" class="internal xref">Example: POST /oauth2/par request</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-par-response" class="internal xref">PAR Response</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.1">
+                    <p id="section-toc.1-1.2.2.2.2.1.1"><a href="#section-2.2.1" class="auto internal xref">2.2.1</a>.  <a href="#name-example-post-oauth2-par-res" class="internal xref">Example: POST /oauth2/par response</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-error-handling" class="internal xref">Error Handling</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-authorization-request-with-" class="internal xref">Authorization Request with Request URI</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-authorization-request-param" class="internal xref">Authorization Request Parameters</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-example-get-oauth2-authoriz" class="internal xref">Example: GET /oauth2/authorize</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-authorization-response-and-" class="internal xref">Authorization Response and Callback</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.1">
+                    <p id="section-toc.1-1.3.2.3.2.1.1"><a href="#section-3.3.1" class="auto internal xref">3.3.1</a>.  <a href="#name-authorization-response-para" class="internal xref">Authorization Response Parameters</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.2">
+                    <p id="section-toc.1-1.3.2.3.2.2.1"><a href="#section-3.3.2" class="auto internal xref">3.3.2</a>.  <a href="#name-example-authorization-respo" class="internal xref">Example: Authorization Response Redirect</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.3">
+                    <p id="section-toc.1-1.3.2.3.2.3.1"><a href="#section-3.3.3" class="auto internal xref">3.3.3</a>.  <a href="#name-callback-processing" class="internal xref">Callback Processing</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.4">
+                    <p id="section-toc.1-1.3.2.3.2.4.1"><a href="#section-3.3.4" class="auto internal xref">3.3.4</a>.  <a href="#name-error-handling-in-authoriza" class="internal xref">Error Handling in Authorization Response</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-token-request-for-identity-" class="internal xref">Token Request for Identity Verification Results</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-token-request-parameters" class="internal xref">Token Request Parameters</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-example-post-oauth2-token" class="internal xref">Example: POST /oauth2/token</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-token-response-with-verifie" class="internal xref">Token Response with Verified Claims</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.1">
+                    <p id="section-toc.1-1.4.2.3.2.1.1"><a href="#section-4.3.1" class="auto internal xref">4.3.1</a>.  <a href="#name-id-token-structure" class="internal xref">ID Token Structure</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-id-token-claims-structure" class="internal xref">ID Token Claims Structure</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4.2.1">
+                    <p id="section-toc.1-1.4.2.4.2.1.1"><a href="#section-4.4.1" class="auto internal xref">4.4.1</a>.  <a href="#name-failed-identity-verificatio" class="internal xref">Failed Identity Verification Results</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">In today's digital ecosystem, organizations increasingly rely on third-party identity verification providers to establish trust and comply with regulatory requirements. However, the broad integration requirements for identity verification providers have created significant challenges for both relying parties and identity providers. Each provider often implements proprietary interfaces, varying data formats, and inconsistent assurance level indicators, leading to complex integration efforts and limited interoperability.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This specification defines an Identity Assurance Profile for OpenID Connect. The profile establishes common patterns for requesting identity verification services, communicating assurance requirements, and evaluating resulting identity assurance claims. It builds upon the OpenID Connect framework to enable integration across identity verification providers while maintaining security and privacy for identity assurance use cases.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">The profile specification is intended to benefit both relying parties and identity providers by reducing integration complexity, improving interoperability, and establishing clear expectations for identity verification processes across different organizational boundaries and regulatory jurisdictions.<a href="#section-1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="relying-party-profile-for-identity-assurance">
+<section id="section-2">
+      <h2 id="name-relying-party-profile-for-i">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-relying-party-profile-for-i" class="section-name selfRef">Relying Party Profile for Identity Assurance</a>
+      </h2>
+<p id="section-2-1">Relying Parties (RPs) require a standardized, interoperable way to request and receive verified identity information from OpenID Providers (OPs). In many regulated or high-assurance environments, RPs must ensure that user attributes—such as name, date of birth, or address—have been verified to a specific level of assurance and with acceptable evidence.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">Through this profile, RPs can more easily obtain the verified identity information they need, with confidence in the assurance level and verification process, while minimizing integration overhead and improving interoperability.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<div id="request-to-pushed-authorization-request-par-endpoint">
+<section id="section-2.1">
+        <h3 id="name-request-to-pushed-authoriza">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-request-to-pushed-authoriza" class="section-name selfRef">Request to Pushed Authorization Request (PAR) Endpoint</a>
+        </h3>
+<p id="section-2.1-1">This profile outlines the use of Pushed Authorization Request (PAR) as defined in RFC 9126 for initializing an identity verification requests. The PAR mechanism provides enhanced security and privacy for identity assurance use cases by enabling the relying party to securely communicate complex identity verification requirements to the identity provider.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">PAR initiated by the relying party makes an HTTP POST request to the authorization server's PAR endpoint containing the authorization request parameters that would normally be sent in the authorization request URL. The authorization server validates the request, stores the parameters, and returns a <code>request_uri</code> value and <code>expires_in</code> parameter. This <code>request_uri</code> is then used in place of individual parameters in the subsequent authorization request to the authorization endpoint.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-3">A claims parameter included in the request is derived from the OpenID Connect for Identity Assurance (OIDC4IA) specification, which allows the relying party to specify the identity attributes that need to be verified and the assurance requirements for each claim.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+<div id="request-parameters">
+<section id="section-2.1.1">
+          <h4 id="name-request-parameters">
+<a href="#section-2.1.1" class="section-number selfRef">2.1.1. </a><a href="#name-request-parameters" class="section-name selfRef">Request Parameters</a>
+          </h4>
+<p id="section-2.1.1-1">When building a PAR request for identity verification, the relying party sends an authorization request parameters directly to the PAR endpoint. While a typical parameter set includes standard OAuth 2.0 and OpenID Connect parameters, this request must include the <code>claim</code> parameter the defines the OIDC4IA <code>verified_claims</code> structure to specify detailed identity verification requirements.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-2">The following describes the PAR parameters when initiating an identity verification request.<a href="#section-2.1.1-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2.1.1-3">
+            <dt id="section-2.1.1-3.1"><code>response_type</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.2">
+              <p id="section-2.1.1-3.2.1"><span class="bcp14">REQUIRED</span>. <span class="bcp14">MUST</span> be set to <code>code</code> to use the authorization code flow.<a href="#section-2.1.1-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.3"><code>client_id</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.4">
+              <p id="section-2.1.1-3.4.1"><span class="bcp14">REQUIRED</span>. The client identifier registered with the OpenID Provider.<a href="#section-2.1.1-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.5"><code>client_secret</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.6">
+              <p id="section-2.1.1-3.6.1"><span class="bcp14">REQUIRED</span>. The client secret associated with the client_id.<a href="#section-2.1.1-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.7"><code>scope</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.8">
+              <p id="section-2.1.1-3.8.1"><span class="bcp14">REQUIRED</span>. <span class="bcp14">MUST</span> include <code>openid</code>, <code>profile</code> and <code>identity_assurance</code>.<a href="#section-2.1.1-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.9"><code>state</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.10">
+              <p id="section-2.1.1-3.10.1"><span class="bcp14">REQUIRED</span>. An unguessable random string used by the relying party to maintain state between the request and callback to prevent CSRF attacks.<a href="#section-2.1.1-3.10.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.11"><code>redirect_uri</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.12">
+              <p id="section-2.1.1-3.12.1"><span class="bcp14">REQUIRED</span>. The URI where the OpenID Provider will redirect the user after processing the identity verification request.<a href="#section-2.1.1-3.12.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.13">
+<code>code_challenge</code> and <code>code_challenge_method</code>
+</dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.14">
+              <p id="section-2.1.1-3.14.1"><span class="bcp14">RECOMMENDED</span>. Enabling PKCE protocol set by the client<a href="#section-2.1.1-3.14.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.15"><code>login_hint</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.16">
+              <p id="section-2.1.1-3.16.1"><span class="bcp14">REQUIRED</span>. A hint to the OpenID Provider about the user's identity, such as an email address or username.<a href="#section-2.1.1-3.16.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.17"><code>nonce</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.18">
+              <p id="section-2.1.1-3.18.1"><span class="bcp14">RECOMMENDED</span>. A string value used to associate the client session with the ID Token and provide replay protection.<a href="#section-2.1.1-3.18.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.1.1-3.19"><code>claims</code></dt>
+            <dd style="margin-left: 1.5em" id="section-2.1.1-3.20">
+              <p id="section-2.1.1-3.20.1"><span class="bcp14">REQUIRED</span>. A JSON object that specifies which identity attributes need to be verified and the assurance requirements for each claim, following the OpenID Connect for Identity Assurance (OIDC4IA) specification structure for <code>verified_claims</code>. The relying party uses this parameter to indicate:
+- Which personal attributes are required (e.g., name, date of birth, address)
+- The verification level needed for each attribute
+- Acceptable evidence types for verification
+- Trust framework requirements as defined in the OIDC4IA <code>verified_claims</code> structure<a href="#section-2.1.1-3.20.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+</dl>
+<div id="verified-claims-extensions">
+<section id="section-2.1.1.1">
+            <h5 id="name-verified-claims-extensions">
+<a href="#section-2.1.1.1" class="section-number selfRef">2.1.1.1. </a><a href="#name-verified-claims-extensions" class="section-name selfRef">Verified Claims Extensions</a>
+            </h5>
+<p id="section-2.1.1.1-1">This profile extends the OpenID Connect for Identity Assurance (OIDC4IA) specification with two key enhancements designed to improve interoperability and user experience in identity verification scenarios:<a href="#section-2.1.1.1-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.1.1.1-2">
+<li id="section-2.1.1.1-2.1">
+                <p id="section-2.1.1.1-2.1.1"><strong>IDV_DELEGATED Trust Framework</strong>: A new trust framework value that enables delegation of identity verification to the OpenID Provider (OP). This extension includes associated assurance levels (<code>VERIFIED</code> and <code>FAILED</code>) that communicate the verification outcome to the relying party.<a href="#section-2.1.1.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.1.1.1-2.2">
+                <p id="section-2.1.1.1-2.2.1"><strong>Fuzzy Name Matching</strong>: An extension to the claims structure that allows relying parties to specify whether approximate string matching should be applied when comparing user-provided data against verified claims. This capability accommodates common variations in name formatting and minor discrepancies while maintaining verification integrity.<a href="#section-2.1.1.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ol>
+<p id="section-2.1.1.1-3">These extensions enhance the flexibility and practical applicability of OIDC4IA for real-world identity verification use cases while maintaining compatibility with the core specification.<a href="#section-2.1.1.1-3" class="pilcrow">¶</a></p>
+<div id="delegated-trustframework">
+<section id="section-2.1.1.1.1">
+              <h6 id="name-delegated-trustframework">
+<a href="#section-2.1.1.1.1" class="section-number selfRef">2.1.1.1.1. </a><a href="#name-delegated-trustframework" class="section-name selfRef">Delegated Trustframework</a>
+              </h6>
+<p id="section-2.1.1.1.1-1">This profile introduces the <code>IDV_DELEGATED</code> trust framework value to support scenarios where identity verification is delegated to specialized identity verification providers. When a relying party specifies <code>IDV_DELEGATED</code> as the trust framework value, it indicates that the OpenID Provider should delegate the identity verification process to a qualified third-party identity verification service that meets the required assurance levels.<a href="#section-2.1.1.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.1.1.1-2">The <code>IDV_DELEGATED</code> trust framework enables relying parties to delegate identity verification requirements to OpenID Providers while maintaining standardized communication through the OpenID Connect protocol. This delegation model allows relying parties to offload complex identity verification processes to specialized providers that can meet their assurance requirements. The assurance level requirements specified in the <code>verified_claims</code> request support two value types: <code>VERIFIED</code> for successful identity verification and <code>FAILED</code> for cases where verification could not be completed. These assurance level results are communicated from the OpenID Provider back to the relying party, ensuring that the verification process meets the relying party's requirements without requiring the relying party to implement or manage the underlying verification infrastructure.<a href="#section-2.1.1.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.1.1.1-3">The <code>IDV_DELEGATED</code> trust framework is in addition to the alternate trust frameworks and assurance levels that are defined in OIDC4IA, which may include:<a href="#section-2.1.1.1.1-3" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+                <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+                  <tr>
+                    <th class="text-left" rowspan="1" colspan="1">Trust Framework</th>
+                    <th class="text-left" rowspan="1" colspan="1">Description</th>
+                    <th class="text-left" rowspan="1" colspan="1">Assurance Levels</th>
+                    <th class="text-left" rowspan="1" colspan="1">Use Cases</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>eidas</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">European eIDAS regulation framework</td>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>low</code>, <code>substantial</code>, <code>high</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">EU digital identity services, cross-border authentication</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>nist_800_63A</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">NIST Special Publication 800-63A</td>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>ial1</code>, <code>ial2</code>, <code>ial3</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">US federal government systems, FICAM compliance</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>uk_tfida</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">UK Trust Framework for Identity Assurance</td>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>low</code>, <code>medium</code>, <code>high</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">UK government digital services, GOV.UK Verify</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>ca_pan_canadian</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">Canadian Pan-Canadian Trust Framework</td>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">Canadian government services, provincial identity systems</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>jp_trustdock</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">Japanese TrustDock framework</td>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>loa1</code>, <code>loa2</code>, <code>loa3</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">Japanese digital identity verification</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>de_idnow</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">German IDnow framework</td>
+                    <td class="text-left" rowspan="1" colspan="1">
+                      <code>basic</code>, <code>professional</code>, <code>enterprise</code>
+</td>
+                    <td class="text-left" rowspan="1" colspan="1">German financial services, KYC compliance</td>
+                  </tr>
+                </tbody>
+              </table>
+<p id="section-2.1.1.1.1-5">Each trust framework defines specific requirements for identity proofing, authentication, and federation that align with regional regulations and industry standards. For example, <code>eidas</code> compliance requires specific evidence types and verification procedures for different assurance levels, while <code>nist_800_63A</code> defines precise requirements for identity proofing strength and verification methods.<a href="#section-2.1.1.1.1-5" class="pilcrow">¶</a></p>
+<p id="section-2.1.1.1.1-6">The <code>IDV_DELEGATED</code> trust framework introduced in this profile complements these existing frameworks by providing a mechanism for relying parties to delegate identity verification to qualified providers while maintaining standardized communication through OpenID Connect protocols.<a href="#section-2.1.1.1.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="fuzzy-matching">
+<section id="section-2.1.1.1.2">
+              <h6 id="name-fuzzy-matching">
+<a href="#section-2.1.1.1.2" class="section-number selfRef">2.1.1.1.2. </a><a href="#name-fuzzy-matching" class="section-name selfRef">Fuzzy Matching</a>
+              </h6>
+<p id="section-2.1.1.1.2-1">The <code>claims</code> parameter may include a <code>fuzzy</code> attribute for each claim, indicating whether the OpenID Provider should perform fuzzy matching on the claim value. This allows for flexibility in matching user-provided data against verified claims, accommodating minor discrepancies in user input.<a href="#section-2.1.1.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.1.1.2-2">Fuzzy matching is particularly valuable in identity verification scenarios where user-provided information may contain minor variations from the authoritative source data. Common discrepancies include differences in name formatting (e.g., "John" vs "Johnny"), spacing variations, punctuation differences, or minor typographical errors. When the <code>fuzzy</code> attribute is set to <code>true</code> for a specific claim, the OpenID Provider should apply appropriate string matching algorithms to determine if the user-provided value is sufficiently similar to the verified claim value.<a href="#section-2.1.1.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.1.1.2-3">The implementation of fuzzy matching should consider factors such as:
+- Character similarity and common substitutions
+- Phonetic matching for names that sound similar but are spelled differently
+- Handling of diacritics and accents in international names
+- Case-insensitive matching
+- Tolerance for whitespace and punctuation variations<a href="#section-2.1.1.1.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.1.1.2-4">When <code>fuzzy</code> is set to <code>false</code>, the OpenID Provider <span class="bcp14">MUST</span> perform exact matching between the user-provided value and the verified claim. This strict matching mode is appropriate for claims where precision is critical, such as government identification numbers, dates of birth, or other fields where exact correspondence is required for compliance or security purposes.<a href="#section-2.1.1.1.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.1.1.1.2-5">The fuzzy matching capability enables a balance between user experience and verification accuracy, allowing legitimate users with minor data variations to successfully complete identity verification while maintaining the integrity of the verification process.<a href="#section-2.1.1.1.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="example-post-oauth2par-request">
+<section id="section-2.1.2">
+          <h4 id="name-example-post-oauth2-par-req">
+<a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-example-post-oauth2-par-req" class="section-name selfRef">Example: POST /oauth2/par request</a>
+          </h4>
+<p id="section-2.1.2-1">```
+POST /oauth/par HTTP/1.1<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-2">Host: idv-vendor.com
+Content-Type: application/x-www-form-urlencoded<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-3">response_type=code
+&amp;client_id=aB3kL9mQ
+&amp;client_secret=xP8nM2kQ7sR4
+&amp;code_challenge=vT9bN3mL8dF1
+&amp;code_challenge_method=S256
+&amp;scope=openid+profile+identity_assurance
+&amp;claims=%7B%22id_token%22%3A%7B%22verified_claims%22%3A%5B%7B%22verification%22%3A%7B%22trust_framework%22%3A%7B%22value%22%3A%22IDV_DELEGATED%22%2C%22essential%22%3Atrue%7D%2C%22assurance_level%22%3A%7B%22value%22%3A%22VERIFIED%22%2C%22essential%22%3Atrue%7D%7D%2C%22claims%22%3A%7B%22given_name%22%3A%7B%22value%22%3A%22John%22%2C%22fuzzy%22%3Atrue%7D%2C%22family_name%22%3A%7B%22value%22%3A%22Doe%22%2C%22fuzzy%22%3Afalse%7D%2C%22birthdate%22%3A%7B%22value%22%3A%221992-01-01%22%2C%22fuzzy%22%3Afalse%7D%7D%7D%5D%7D%7D
+&amp;state=wLPOSunzNXu3ZXf8Rn
+&amp;login_hint=user_Ka8mN2pQ3xR7
+&amp;redirect_uri=https://relyingparty.com/idp/identity-verification/callback
+```<a href="#section-2.1.2-3" class="pilcrow">¶</a></p>
+<div id="url-decoded-claims-parameter">
+<section id="section-2.1.2.1">
+            <h5 id="name-url-decoded-claims-paramete">
+<a href="#section-2.1.2.1" class="section-number selfRef">2.1.2.1. </a><a href="#name-url-decoded-claims-paramete" class="section-name selfRef">URL-decoded claims parameter</a>
+            </h5>
+<p id="section-2.1.2.1-1">For clarity, the URL-encoded <code>claims</code> parameter above represents the following JSON structure:<a href="#section-2.1.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.2.1-2"><code>json
+{
+  "id_token": {
+    "verified_claims": [
+      {
+        "verification": {
+          "trust_framework": {
+            "value": "IDV_DELEGATED",
+            "essential": true
+          },
+          "assurance_level": {
+            "value": "VERIFIED",
+            "essential": true
+          }
+        },
+        "claims": {
+          "given_name": {
+            "value": "John",
+            "fuzzy": true
+          },
+          "family_name": {
+            "value": "Doe",
+            "fuzzy": false
+          },
+          "birthdate": {
+            "value": "1992-01-01",
+            "fuzzy": false
+          }
+        }
+      }
+    ]
+  }
+}
+</code><a href="#section-2.1.2.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="par-response">
+<section id="section-2.2">
+        <h3 id="name-par-response">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-par-response" class="section-name selfRef">PAR Response</a>
+        </h3>
+<p id="section-2.2-1">Upon receiving a valid PAR request, the identity provider generates a unique <code>request_uri</code> that:<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2-2.1">
+            <p id="section-2.2-2.1.1">References the stored authorization request parameters<a href="#section-2.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-2.2-2.2">
+            <p id="section-2.2-2.2.1">Has a limited lifetime as specified in the PAR response<a href="#section-2.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-2.2-2.3">
+            <p id="section-2.2-2.3.1">Can be used in subsequent authorization requests without exposing sensitive parameters in URL query strings<a href="#section-2.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-2.2-3">The use of PAR ensures that sensitive identity verification requirements are transmitted securely and are not exposed in browser history, server logs, or other potential information leakage vectors that could occur with traditional authorization request methods.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
+<div id="example-post-oauth2par-response">
+<section id="section-2.2.1">
+          <h4 id="name-example-post-oauth2-par-res">
+<a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-example-post-oauth2-par-res" class="section-name selfRef">Example: POST /oauth2/par response</a>
+          </h4>
+<p id="section-2.2.1-1">```
+HTTP/1.1 201 Created
+Content-Type: application/json
+Cache-Control: no-cache, no-store<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-2">{
+  "request_uri": "urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
+  "expires_in": 60
+}
+```<a href="#section-2.2.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="error-handling">
+<section id="section-2.3">
+        <h3 id="name-error-handling">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-error-handling" class="section-name selfRef">Error Handling</a>
+        </h3>
+<p id="section-2.3-1">If during the PAR request and error occurs, then the error response should follow specification OAuth 2.0 Pushed Authorization Requests <a href="https://www.rfc-editor.org/rfc/rfc9126.html#name-error-response">RFC 9126</a><a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.3-2">For example if the PAR request cannot be completed due to an invalid or missing parameter, then the error response would result in:<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.3-3"><code>
+HTTP/1.1 400 Bad Request
+ Content-Type: application/json
+ Cache-Control: no-cache, no-store
+ {
+   "error": "invalid_request",
+   "error_description":
+     "The redirect_uri is not valid for the given client"
+ }
+</code><a href="#section-2.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="authorization-request-with-request-uri">
+<section id="section-3">
+      <h2 id="name-authorization-request-with-">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-authorization-request-with-" class="section-name selfRef">Authorization Request with Request URI</a>
+      </h2>
+<p id="section-3-1">After successfully receiving the <code>request_uri</code> from the PAR endpoint, the relying party initiates the second phase of the identity verification flow by redirecting the user to the OP authorization endpoint. This redirect includes the <code>request_uri</code> parameter that references the previously pushed authorization request parameters.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">The relying party constructs an authorization request URL that directs the user's browser to the OP, where the identity verification process will be conducted. The use of the <code>request_uri</code> ensures that all sensitive verification requirements remain securely stored at the OP rather than being exposed in the authorization URL.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<div id="authorization-request-parameters">
+<section id="section-3.1">
+        <h3 id="name-authorization-request-param">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-authorization-request-param" class="section-name selfRef">Authorization Request Parameters</a>
+        </h3>
+<p id="section-3.1-1">The authorization request <span class="bcp14">MUST</span> include the following parameters when redirecting the user to the OP:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-3.1-2">
+          <dt id="section-3.1-2.1"><code>client_id</code></dt>
+          <dd style="margin-left: 1.5em" id="section-3.1-2.2">
+            <p id="section-3.1-2.2.1"><span class="bcp14">REQUIRED</span>. The client identifier registered with the OP.<a href="#section-3.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-2.3"><code>request_uri</code></dt>
+          <dd style="margin-left: 1.5em" id="section-3.1-2.4">
+            <p id="section-3.1-2.4.1"><span class="bcp14">REQUIRED</span>. The URI returned from the PAR endpoint that references the stored authorization request parameters.<a href="#section-3.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-2.5"><code>response_type</code></dt>
+          <dd style="margin-left: 1.5em" id="section-3.1-2.6">
+            <p id="section-3.1-2.6.1"><span class="bcp14">OPTIONAL</span>. May be included but is redundant since this information is already contained in the pushed request parameters.<a href="#section-3.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-3.1-3">Additional parameters from the original authorization request (such as <code>state</code>, <code>nonce</code>, <code>redirect_uri</code>) are not included in the authorization URL since they are already stored and referenced by the <code>request_uri</code>.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="example-get-oauth2authorize">
+<section id="section-3.2">
+        <h3 id="name-example-get-oauth2-authoriz">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-example-get-oauth2-authoriz" class="section-name selfRef">Example: GET /oauth2/authorize</a>
+        </h3>
+<p id="section-3.2-1">The relying party redirects the user to the OP's authorization endpoint using the <code>request_uri</code> obtained from the PAR response:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-2">```
+HTTP/1.1 302
+GET /oauth/authorize?client_id=aB3kL9mQ&amp;request_uri=urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-3">Host: idv-vendor.com
+Content-Type: application/x-www-form-urlencoded
+```<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<p id="section-3.2-4">Upon receiving this request, the OP:<a href="#section-3.2-4" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.2-5">
+<li id="section-3.2-5.1">
+            <p id="section-3.2-5.1.1">Validates the <code>client_id</code> and <code>request_uri</code> parameters<a href="#section-3.2-5.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-3.2-5.2">
+            <p id="section-3.2-5.2.1">Retrieves the stored authorization request parameters associated with the <code>request_uri</code><a href="#section-3.2-5.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-3.2-5.3">
+            <p id="section-3.2-5.3.1">Initiates the identity verification process based on the <code>verified_claims</code> requirements<a href="#section-3.2-5.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-3.2-5.4">
+            <p id="section-3.2-5.4.1">Presents the appropriate identity verification interface to the user<a href="#section-3.2-5.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-3.2-5.5">
+            <p id="section-3.2-5.5.1">Conducts the verification process according to the specified trust framework and assurance level requirements<a href="#section-3.2-5.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-3.2-6">The user completes the identity verification process at the OP, which may include document upload, biometric verification, or other verification methods as determined by the <code>IDV_DELEGATED</code> trust framework implementation.<a href="#section-3.2-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authorization-response-and-callback">
+<section id="section-3.3">
+        <h3 id="name-authorization-response-and-">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-authorization-response-and-" class="section-name selfRef">Authorization Response and Callback</a>
+        </h3>
+<p id="section-3.3-1">Upon successful completion of the identity verification process, the OP redirects the user back to the relying party's <code>redirect_uri</code> that was specified in the original PAR request. This redirect contains the authorization code that enables the relying party to retrieve the identity verification results.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">The authorization response follows the standard OAuth 2.0 authorization code flow pattern, with the authorization code serving as a secure reference to the completed identity verification session.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+<div id="authorization-response-parameters">
+<section id="section-3.3.1">
+          <h4 id="name-authorization-response-para">
+<a href="#section-3.3.1" class="section-number selfRef">3.3.1. </a><a href="#name-authorization-response-para" class="section-name selfRef">Authorization Response Parameters</a>
+          </h4>
+<p id="section-3.3.1-1">The OP redirects the user to the relying party's callback endpoint with the following parameters:<a href="#section-3.3.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-3.3.1-2">
+            <dt id="section-3.3.1-2.1"><code>code</code></dt>
+            <dd style="margin-left: 1.5em" id="section-3.3.1-2.2">
+              <p id="section-3.3.1-2.2.1"><span class="bcp14">REQUIRED</span>. The authorization code generated by the OP after successful identity verification. This code can be exchanged for an ID token containing the verified claims.<a href="#section-3.3.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.3.1-2.3"><code>state</code></dt>
+            <dd style="margin-left: 1.5em" id="section-3.3.1-2.4">
+              <p id="section-3.3.1-2.4.1"><span class="bcp14">REQUIRED</span>. The unguessable random string that was provided in the original PAR request. The relying party <span class="bcp14">MUST</span> verify that this value matches the state parameter from the original request to prevent CSRF attacks.<a href="#section-3.3.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.3.1-2.5"><code>iss</code></dt>
+            <dd style="margin-left: 1.5em" id="section-3.3.1-2.6">
+              <p id="section-3.3.1-2.6.1"><span class="bcp14">OPTIONAL</span>. The issuer identifier of the OP, as defined in OAuth 2.0 Authorization Server Issuer Identification.<a href="#section-3.3.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="example-authorization-response-redirect">
+<section id="section-3.3.2">
+          <h4 id="name-example-authorization-respo">
+<a href="#section-3.3.2" class="section-number selfRef">3.3.2. </a><a href="#name-example-authorization-respo" class="section-name selfRef">Example: Authorization Response Redirect</a>
+          </h4>
+<p id="section-3.3.2-1">After completing the identity verification process, the OP redirects the user back to the relying party:<a href="#section-3.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.2-2"><code>
+HTTP/1.1 302 Found
+Location: https://relyingparty.com/idp/identity-verification/callback?code=SplxlOBeZQQYbYS6WxSbIA&amp;state=wLPOSunzNXu3ZXf8Rn&amp;iss=https%3A%2F%2Fidv-vendor.com
+</code><a href="#section-3.3.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="callback-processing">
+<section id="section-3.3.3">
+          <h4 id="name-callback-processing">
+<a href="#section-3.3.3" class="section-number selfRef">3.3.3. </a><a href="#name-callback-processing" class="section-name selfRef">Callback Processing</a>
+          </h4>
+<p id="section-3.3.3-1">Upon receiving the authorization response, the relying party <span class="bcp14">MUST</span>:<a href="#section-3.3.3-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.3.3-2">
+<li id="section-3.3.3-2.1">
+              <p id="section-3.3.3-2.1.1"><strong>Validate the state parameter</strong>: Verify that the <code>state</code> parameter matches the value sent in the original PAR request to prevent CSRF attacks<a href="#section-3.3.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.3.3-2.2">
+              <p id="section-3.3.3-2.2.1"><strong>Extract the authorization code</strong>: Retrieve the <code>code</code> parameter that will be used to obtain the identity verification results<a href="#section-3.3.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.3.3-2.3">
+              <p id="section-3.3.3-2.3.1"><strong>Verify the issuer</strong> (if present): Ensure the <code>iss</code> parameter matches the expected OP issuer identifier<a href="#section-3.3.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.3.3-2.4">
+              <p id="section-3.3.3-2.4.1"><strong>Handle error responses</strong>: Process any error parameters that may indicate verification failure or other issues<a href="#section-3.3.3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+<p id="section-3.3.3-3">The relying party can then proceed to exchange the authorization code for an ID token containing the verified claims through the token endpoint request.<a href="#section-3.3.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="error-handling-in-authorization-response">
+<section id="section-3.3.4">
+          <h4 id="name-error-handling-in-authoriza">
+<a href="#section-3.3.4" class="section-number selfRef">3.3.4. </a><a href="#name-error-handling-in-authoriza" class="section-name selfRef">Error Handling in Authorization Response</a>
+          </h4>
+<p id="section-3.3.4-1">If the identity verification process fails or encounters an error, the OP may redirect the user back to the relying party with error parameters instead of an authorization code:<a href="#section-3.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.4-2"><code>
+HTTP/1.1 302 Found
+Location: https://relyingparty.com/idp/identity-verification/callback?error=access_denied&amp;error_description=The+user+denied+the+request&amp;state=wLPOSunzNXu3ZXf8Rn
+</code><a href="#section-3.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.4-3">Common error codes include:
+- <code>access_denied</code>: The user denied the identity verification request
+- <code>invalid_request</code>: The request was malformed or contained invalid parameters
+- <code>server_error</code>: The OP encountered an internal error during processing
+- <code>temporarily_unavailable</code>: The OP is temporarily unavailable<a href="#section-3.3.4-3" class="pilcrow">¶</a></p>
+<p id="section-3.3.4-4">The relying party should handle these error conditions appropriately and provide meaningful feedback to the user about the identity verification status.<a href="#section-3.3.4-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="token-request-for-identity-verification-results">
+<section id="section-4">
+      <h2 id="name-token-request-for-identity-">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-token-request-for-identity-" class="section-name selfRef">Token Request for Identity Verification Results</a>
+      </h2>
+<p id="section-4-1">After the user completes the identity verification process at the OpenID Provider, the OP redirects the user back to the relying party's <code>redirect_uri</code> with an authorization code. The relying party then exchanges this authorization code for an ID token that contains the results of the identity verification flow.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">This token exchange represents the final phase of the identity verification profile, where the relying party receives the verified claims and assurance level information that was processed during the user's verification session with the OP.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<div id="token-request-parameters">
+<section id="section-4.1">
+        <h3 id="name-token-request-parameters">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-token-request-parameters" class="section-name selfRef">Token Request Parameters</a>
+        </h3>
+<p id="section-4.1-1">The relying party makes a POST request to the OP's token endpoint to exchange the authorization code for tokens. The token request <span class="bcp14">MUST</span> include the following parameters:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4.1-2">
+          <dt id="section-4.1-2.1"><code>grant_type</code></dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-2.2">
+            <p id="section-4.1-2.2.1"><span class="bcp14">REQUIRED</span>. <span class="bcp14">MUST</span> be set to <code>authorization_code</code>.<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-4.1-2.3"><code>code</code></dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-2.4">
+            <p id="section-4.1-2.4.1"><span class="bcp14">REQUIRED</span>. The authorization code received from the authorization endpoint callback.<a href="#section-4.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-4.1-2.5"><code>client_id</code></dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-2.6">
+            <p id="section-4.1-2.6.1"><span class="bcp14">REQUIRED</span>. The client identifier registered with the OP.<a href="#section-4.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-4.1-2.7"><code>client_secret</code></dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-2.8">
+            <p id="section-4.1-2.8.1"><span class="bcp14">REQUIRED</span>. The client secret associated with the client_id for client authentication.<a href="#section-4.1-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-4.1-2.9"><code>redirect_uri</code></dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-2.10">
+            <p id="section-4.1-2.10.1"><span class="bcp14">REQUIRED</span>. <span class="bcp14">MUST</span> exactly match the redirect_uri used in the original PAR request.<a href="#section-4.1-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-4.1-2.11"><code>code_verifier</code></dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-2.12">
+            <p id="section-4.1-2.12.1"><span class="bcp14">REQUIRED</span> if PKCE was used in the authorization request. The code verifier that corresponds to the code_challenge sent in the PAR request.<a href="#section-4.1-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="example-post-oauth2token">
+<section id="section-4.2">
+        <h3 id="name-example-post-oauth2-token">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-example-post-oauth2-token" class="section-name selfRef">Example: POST /oauth2/token</a>
+        </h3>
+<p id="section-4.2-1">The relying party exchanges the authorization code for tokens containing the identity verification results:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">```
+POST /oauth/token HTTP/1.1
+Host: idv-vendor.com
+Content-Type: application/x-www-form-urlencoded<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2-3">grant_type=authorization_code
+&amp;code=SplxlOBeZQQYbYS6WxSbIA
+&amp;client_id=aB3kL9mQ
+&amp;client_secret=xP8nM2kQ7sR4
+&amp;redirect_uri=https://relyingparty.com/idp/identity-verification/callback
+&amp;code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
+```<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="token-response-with-verified-claims">
+<section id="section-4.3">
+        <h3 id="name-token-response-with-verifie">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-token-response-with-verifie" class="section-name selfRef">Token Response with Verified Claims</a>
+        </h3>
+<p id="section-4.3-1">The OP responds with an ID token that contains the results of the identity verification process. The ID token includes verified claims structured according to the OIDC4IA specification with the extensions defined in this profile:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache, no-store<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">{
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lkdi12ZW5kb3IuY29tIiwic3ViIjoidXNlcl9LYThtTjJwUTN4UjciLCJhdWQiOiJhQjNrTDltUSIsImV4cCI6MTY0MjU1NzYwMCwiaWF0IjoxNjQyNTU0MDAwLCJub25jZSI6Im5vbmNlVmFsdWUiLCJ2ZXJpZmllZF9jbGFpbXMiOlt7InZlcmlmaWNhdGlvbiI6eyJ0cnVzdF9mcmFtZXdvcmsiOiJJRFYtREVMRUdBVEVEIiwiYXNzdXJhbmNlX2xldmVsIjoiVkVSSUZJRUQiLCJ2ZXJpZmljYXRpb25fcHJvY2VzcyI6IjEyMzQ1Njc4LWFiY2QtZWZnaC1oaWprLWxtbm9wcXJzdHV2dyIsInRpbWUiOiIyMDI0LTAxLTE1VDEwOjAwOjAwWiIsImV2aWRlbmNlIjpbeyJ0eXBlIjoiZG9jdW1lbnQiLCJtZXRob2QiOiJhdXRvbWF0ZWQiLCJkb2N1bWVudCI6eyJ0eXBlIjoiZHJpdmluZ19saWNlbnNlIiwiaXNzdWVyIjp7Im5hbWUiOiJDQSBETVYiLCJjb3VudHJ5IjoiVVMifX19XX0sImNsYWltcyI6eyJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiRG9lIiwiYmlydGhkYXRlIjoiMTk5Mi0wMS0wMSJ9fV19"
+}
+```<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<div id="id-token-structure">
+<section id="section-4.3.1">
+          <h4 id="name-id-token-structure">
+<a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-id-token-structure" class="section-name selfRef">ID Token Structure</a>
+          </h4>
+<p id="section-4.3.1-1">The <code>id_token</code> is a signed JWT (JSON Web Token) that contains the identity verification results. When decoded, the JWT payload reveals the complete structure of the verified claims and all required OpenID Connect attributes.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
+<div id="decoded-jwt-payload">
+<section id="section-4.3.1.1">
+            <h5 id="name-decoded-jwt-payload">
+<a href="#section-4.3.1.1" class="section-number selfRef">4.3.1.1. </a><a href="#name-decoded-jwt-payload" class="section-name selfRef">Decoded JWT Payload</a>
+            </h5>
+<p id="section-4.3.1.1-1">When the <code>id_token</code> JWT is decoded and verified, the payload contains the following structure with all required attributes and verified claims results:<a href="#section-4.3.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.1.1-2"><code>json
+{
+  "iss": "https://idv-vendor.com",
+  "sub": "user_Ka8mN2pQ3xR7",
+  "aud": "aB3kL9mQ",
+  "exp": 1642557600,
+  "iat": 1642554000,
+  "auth_time": 1642553800,
+  "nonce": "nonceValue",
+  "acr": "urn:mace:incommon:iap:silver",
+  "amr": ["pwd", "otp"],
+  "azp": "aB3kL9mQ",
+  "verified_claims": [
+    {
+      "verification": {
+        "trust_framework": "IDV_DELEGATED",
+        "assurance_level": "VERIFIED",
+        "verification_process": "12345678-abcd-efgh-hijk-lmnopqrstuvw",
+        "time": "2024-01-15T10:00:00Z",
+        "evidence": [
+          {
+            "type": "document",
+            "method": "automated",
+            "document": {
+              "type": "driving_license",
+              "issuer": {
+                "name": "CA DMV",
+                "country": "US"
+              },
+              "number": "D1234567",
+              "date_of_issuance": "2020-01-15",
+              "date_of_expiry": "2028-01-15"
+            }
+          }
+        ]
+      },
+      "claims": {
+        "given_name": "John",
+        "family_name": "Doe",
+        "birthdate": "1992-01-01"
+      }
+    }
+  ]
+}
+</code><a href="#section-4.3.1.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="id-token-claims-structure">
+<section id="section-4.4">
+        <h3 id="name-id-token-claims-structure">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-id-token-claims-structure" class="section-name selfRef">ID Token Claims Structure</a>
+        </h3>
+<p id="section-4.4-1">The ID token contains verified claims with the following structure that reflects the results of the identity verification process:<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.4-2.1">
+            <p id="section-4.4-2.1.1"><strong>verification</strong>: Contains metadata about the verification process including:<a href="#section-4.4-2.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.4-2.1.2.1">
+                <p id="section-4.4-2.1.2.1.1"><code>trust_framework</code>: Set to <code>IDV_DELEGATED</code> indicating the verification was delegated<a href="#section-4.4-2.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.4-2.1.2.2">
+                <p id="section-4.4-2.1.2.2.1"><code>assurance_level</code>: Either <code>VERIFIED</code> or <code>FAILED</code> based on the verification outcome<a href="#section-4.4-2.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.4-2.1.2.3">
+                <p id="section-4.4-2.1.2.3.1"><code>verification_process</code>: Unique identifier for the verification session<a href="#section-4.4-2.1.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.4-2.1.2.4">
+                <p id="section-4.4-2.1.2.4.1"><code>time</code>: Timestamp when the verification was completed<a href="#section-4.4-2.1.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.4-2.1.2.5">
+                <p id="section-4.4-2.1.2.5.1"><code>evidence</code>: Array of evidence types used in the verification process<a href="#section-4.4-2.1.2.5.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-4.4-2.2">
+            <p id="section-4.4-2.2.1"><strong>claims</strong>: Contains the verified identity attributes with their verified values, reflecting any fuzzy matching that was applied during the verification process<a href="#section-4.4-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.4-3">The relying party can parse this ID token to extract the verified claims and determine whether the identity verification was successful based on the <code>assurance_level</code> value. This completes the identity verification flow, providing the relying party with the verified identity information needed for their use case.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+<div id="failed-identity-verification-results">
+<section id="section-4.4.1">
+          <h4 id="name-failed-identity-verificatio">
+<a href="#section-4.4.1" class="section-number selfRef">4.4.1. </a><a href="#name-failed-identity-verificatio" class="section-name selfRef">Failed Identity Verification Results</a>
+          </h4>
+<p id="section-4.4.1-1">When identity verification cannot be completed successfully, the OpenID Provider returns an ID token with <code>assurance_level</code> set to <code>FAILED</code>. In these cases, the <code>verified_claims</code> structure must clearly indicate which claims could not be verified and provide appropriate failure information.<a href="#section-4.4.1-1" class="pilcrow">¶</a></p>
+<div id="representing-unverified-claims">
+<section id="section-4.4.1.1">
+            <h5 id="name-representing-unverified-cla">
+<a href="#section-4.4.1.1" class="section-number selfRef">4.4.1.1. </a><a href="#name-representing-unverified-cla" class="section-name selfRef">Representing Unverified Claims</a>
+            </h5>
+<p id="section-4.4.1.1-1">According to the OpenID Connect for Identity Assurance specification, unverified claims can be represented in two ways:<a href="#section-4.4.1.1-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.4.1.1-2">
+<li id="section-4.4.1.1-2.1">
+                <p id="section-4.4.1.1-2.1.1"><strong>Omission</strong>: Claims that could not be verified are omitted entirely from the <code>claims</code> object<a href="#section-4.4.1.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-4.4.1.1-2.2">
+                <p id="section-4.4.1.1-2.2.1"><strong>Null Values</strong>: Claims that could not be verified are included with <code>null</code> values<a href="#section-4.4.1.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ol>
+</section>
+</div>
+<div id="example-failed-verification-response">
+<section id="section-4.4.1.2">
+            <h5 id="name-example-failed-verification">
+<a href="#section-4.4.1.2" class="section-number selfRef">4.4.1.2. </a><a href="#name-example-failed-verification" class="section-name selfRef">Example: Failed Verification Response</a>
+            </h5>
+<p id="section-4.4.1.2-1">When verification fails, the decoded JWT payload would contain a <code>null</code> value for the claim (or claims) that could not be verified:<a href="#section-4.4.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.4.1.2-2"><code>json
+{
+  "iss": "https://idv-vendor.com",
+  "sub": "user_Ka8mN2pQ3xR7",
+  "aud": "aB3kL9mQ",
+  "exp": 1642557600,
+  "iat": 1642554000,
+  "auth_time": 1642553800,
+  "nonce": "nonceValue",
+  "verified_claims": [
+    {
+      "verification": {
+        "trust_framework": "IDV_DELEGATED",
+        "assurance_level": "FAILED",
+        "verification_process": "12345678-abcd-efgh-hijk-lmnopqrstuvw",
+        "time": "2024-01-15T10:00:00Z",
+        "evidence": [
+          {
+            "type": "document",
+            "method": "automated",
+            "document": {
+              "type": "driving_license",
+              "issuer": {
+                "name": "CA DMV",
+                "country": "US"
+              }
+            }
+          }
+        ]
+      },
+      "claims": {
+        "given_name": "John",
+        "family_name": "Doe",
+        "birthdate": null
+      }
+    }
+  ]
+}
+</code><a href="#section-4.4.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.4.1.2-3">Alternatively, with omission approach, exclude the claim (or claims) that could not be verified<a href="#section-4.4.1.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.4.1.2-4"><code>json
+{
+  "iss": "https://idv-vendor.com",
+  "sub": "user_Ka8mN2pQ3xR7",
+  "aud": "aB3kL9mQ",
+  "exp": 1642557600,
+  "iat": 1642554000,
+  "auth_time": 1642553800,
+  "nonce": "nonceValue",
+  "verified_claims": [
+    {
+      "verification": {
+        "trust_framework": "IDV_DELEGATED",
+        "assurance_level": "FAILED",
+        "verification_process": "12345678-abcd-efgh-hijk-lmnopqrstuvw",
+        "time": "2024-01-15T10:00:00Z",
+        "evidence": [
+          {
+            "type": "document",
+            "method": "automated",
+            "document": {
+              "type": "driving_license",
+              "issuer": {
+                "name": "CA DMV",
+                "country": "US"
+              }
+            }
+          }
+        ]
+      },
+      "claims": {}
+    }
+  ]
+}
+</code><a href="#section-4.4.1.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="handling-failed-verification">
+<section id="section-4.4.1.3">
+            <h5 id="name-handling-failed-verificatio">
+<a href="#section-4.4.1.3" class="section-number selfRef">4.4.1.3. </a><a href="#name-handling-failed-verificatio" class="section-name selfRef">Handling Failed Verification</a>
+            </h5>
+<p id="section-4.4.1.3-1">When processing failed verification results, relying parties should:<a href="#section-4.4.1.3-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.4.1.3-2">
+<li id="section-4.4.1.3-2.1">
+                <p id="section-4.4.1.3-2.1.1"><strong>Check assurance_level</strong>: Always verify that <code>assurance_level</code> is <code>FAILED</code><a href="#section-4.4.1.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-4.4.1.3-2.2">
+                <p id="section-4.4.1.3-2.2.1"><strong>Handle missing claims</strong>: Be prepared to handle both null values and omitted claims<a href="#section-4.4.1.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-4.4.1.3-2.3">
+                <p id="section-4.4.1.3-2.3.1"><strong>Examine evidence</strong>: Review the evidence object to understand what verification was attempted<a href="#section-4.4.1.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-4.4.1.3-2.4">
+                <p id="section-4.4.1.3-2.4.1"><strong>Process verification_process</strong>: Use the verification process ID for audit trails and debugging<a href="#section-4.4.1.3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-4.4.1.3-2.5">
+                <p id="section-4.4.1.3-2.5.1"><strong>Implement fallback logic</strong>: Have appropriate fallback mechanisms for cases where verification cannot be completed<a href="#section-4.4.1.3-2.5.1" class="pilcrow">¶</a></p>
+</li>
+            </ol>
+<p id="section-4.4.1.3-3">The presence of evidence information even in failed cases allows relying parties to understand what verification methods were attempted and can inform decisions about retry strategies or alternative verification approaches.<a href="#section-4.4.1.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-4.5">
+        <h3 id="name-conventions-and-definitions">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+        </h3>
+<p id="section-4.5-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-5">
+      <h2 id="name-security-considerations">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-5-1">TODO Security<a href="#section-5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-6">
+      <h2 id="name-iana-considerations">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-6-1">This document has no IANA actions.<a href="#section-6-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-normative-references">
+<section id="section-7">
+      <h2 id="name-normative-references">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+      </h2>
+<dl class="references">
+<dt id="OpenID">[OpenID]</dt>
+      <dd>
+<span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">de Medeiros, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OpenID Connect Core 1.0 incorporating errata set 2"</span>, <time datetime="2023-12" class="refDate">December 2023</time>, <span>&lt;<a href="https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+      <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+    <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="acknowledgments">
+<section id="appendix-A">
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="appendix-A-1">TODO acknowledge.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Scott Bermon</span></div>
+<div dir="auto" class="left"><span class="org">Okta</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:scott.bermon@okta.com" class="email">scott.bermon@okta.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Aaron Parecki</span></div>
+<div dir="auto" class="left"><span class="org">Okta</span></div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
