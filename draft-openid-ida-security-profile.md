@@ -180,41 +180,49 @@ response_type=code
 &code_challenge=vT9bN3mL8dF1
 &code_challenge_method=S256
 &scope=openid+profile+identity_assurance
-&claims={
-    "id_token": {
-      "verified_claims": [
-        {
-          "verification": {
-            "trust_framework": {
-              "value": "IDV-DELEGATED",
-              "essential": true
-            },
-            "assurance_level": {
-              "value": "VERIFIED",
-              "essential": true
-            }
-          },
-          "claims": {
-            "given_name": {
-              "value": "John",
-              "fuzzy": true
-            },
-            "family_name": {
-              "value": "Doe",
-              "fuzzy": false
-            },
-            "birthdate": {
-              "value": "1992-01-01",
-              "fuzzy": false
-            }
-          }
-        }
-      ]
-    }
-  }
+&claims=%7B%22id_token%22%3A%7B%22verified_claims%22%3A%5B%7B%22verification%22%3A%7B%22trust_framework%22%3A%7B%22value%22%3A%22IDV_DELEGATED%22%2C%22essential%22%3Atrue%7D%2C%22assurance_level%22%3A%7B%22value%22%3A%22VERIFIED%22%2C%22essential%22%3Atrue%7D%7D%2C%22claims%22%3A%7B%22given_name%22%3A%7B%22value%22%3A%22John%22%2C%22fuzzy%22%3Atrue%7D%2C%22family_name%22%3A%7B%22value%22%3A%22Doe%22%2C%22fuzzy%22%3Afalse%7D%2C%22birthdate%22%3A%7B%22value%22%3A%221992-01-01%22%2C%22fuzzy%22%3Afalse%7D%7D%7D%5D%7D%7D
 &state=wLPOSunzNXu3ZXf8Rn
 &login_hint=user_Ka8mN2pQ3xR7
 &redirect_uri=https://relyingparty.com/idp/identity-verification/callback
+```
+
+#### URL-decoded claims parameter
+
+For clarity, the URL-encoded `claims` parameter above represents the following JSON structure:
+
+```json
+{
+  "id_token": {
+    "verified_claims": [
+      {
+        "verification": {
+          "trust_framework": {
+            "value": "IDV_DELEGATED",
+            "essential": true
+          },
+          "assurance_level": {
+            "value": "VERIFIED",
+            "essential": true
+          }
+        },
+        "claims": {
+          "given_name": {
+            "value": "John",
+            "fuzzy": true
+          },
+          "family_name": {
+            "value": "Doe",
+            "fuzzy": false
+          },
+          "birthdate": {
+            "value": "1992-01-01",
+            "fuzzy": false
+          }
+        }
+      }
+    ]
+  }
+}
 ```
 
 ## PAR Response
