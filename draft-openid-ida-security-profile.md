@@ -250,8 +250,7 @@ Cache-Control: no-cache, no-store
 
 ## Error Handling
 
-If during the PAR request and error occurs, then the error response should follow specification 
-OAuth 2.0 Pushed Authorization Requests [RFC 9126](https://www.rfc-editor.org/rfc/rfc9126.html#name-error-response)
+If during the PAR request and error occurs, then the error response should follow specification OAuth 2.0 Pushed Authorization Requests [RFC 9126](https://www.rfc-editor.org/rfc/rfc9126.html#name-error-response)
 
 For example if the PAR request cannot be completed due to an invalid or missing parameter, then the error response would result in:
 
