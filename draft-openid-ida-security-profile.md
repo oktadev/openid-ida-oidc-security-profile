@@ -199,7 +199,7 @@ response_type=code
               "value": "John",
               "fuzzy": true
             },
-            "family_name": 
+            "family_name": {
               "value": "Doe",
               "fuzzy": false
             },
