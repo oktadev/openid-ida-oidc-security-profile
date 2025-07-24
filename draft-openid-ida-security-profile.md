@@ -112,6 +112,7 @@ The following describes the PAR parameters when initiating an identity verificat
 
 `claims`
 : REQUIRED. A JSON object that specifies which identity attributes need to be verified and the assurance requirements for each claim, following the OpenID Connect for Identity Assurance (OIDC4IA) specification structure for `verified_claims`. The relying party uses this parameter to indicate:
+
   - Which personal attributes are required (e.g., name, date of birth, address)
   - The verification level needed for each attribute
   - Acceptable evidence types for verification
@@ -129,7 +130,7 @@ These extensions enhance the flexibility and practical applicability of OIDC4IA 
 
 ##### Delegated Trustframework
 
-This profile introduces the `IDV_DELEGATED` trust framework value to support scenarios where identity verification is delegated to specialized identity verification providers. When a relying party specifies `IDV_DELEGATED` as the trust framework value, it indicates that the OpenID Provider should delegate the identity verification process to a qualified third-party identity verification service that meets the required assurance levels.
+This profile introduces the `IDV_DELEGATED` trust framework value to support scenarios where identity verification is delegated to specialized identity verification providers. When a relying party specifies `IDV_DELEGATED` as the trust framework value, it indicates that the relying party is delegating the identity verification process to the OpenID Provider, which will conduct the verification using qualified identity verification services to provide a pass or fail assurance level.
 
 The `IDV_DELEGATED` trust framework enables relying parties to delegate identity verification requirements to OpenID Providers while maintaining standardized communication through the OpenID Connect protocol. This delegation model allows relying parties to offload complex identity verification processes to specialized providers that can meet their assurance requirements. The assurance level requirements specified in the `verified_claims` request support two value types: `VERIFIED` for successful identity verification and `FAILED` for cases where verification could not be completed. These assurance level results are communicated from the OpenID Provider back to the relying party, ensuring that the verification process meets the relying party's requirements without requiring the relying party to implement or manage the underlying verification infrastructure.
 
@@ -137,6 +138,7 @@ The `IDV_DELEGATED` trust framework is in addition to the alternate trust framew
 
 | Trust Framework | Description | Assurance Levels | Use Cases |
 |-----------------|-------------|------------------|-----------|
+| `idv_delegated` | IDV Vendor framework | `verified`, `failed` | Assurance tailored to the identity verification service |
 | `eidas` | European eIDAS regulation framework | `low`, `substantial`, `high` | EU digital identity services, cross-border authentication |
 | `nist_800_63A` | NIST Special Publication 800-63A | `ial1`, `ial2`, `ial3` | US federal government systems, FICAM compliance |
 | `uk_tfida` | UK Trust Framework for Identity Assurance | `low`, `medium`, `high` | UK government digital services, GOV.UK Verify |
@@ -156,17 +158,18 @@ The `claims` parameter may include a `fuzzy` attribute for each claim, indicatin
 Fuzzy matching is particularly valuable in identity verification scenarios where user-provided information may contain minor variations from the authoritative source data. Common discrepancies include differences in name formatting (e.g., "John" vs "Johnny"), spacing variations, punctuation differences, or minor typographical errors. When the `fuzzy` attribute is set to `true` for a specific claim, the OpenID Provider should apply appropriate string matching algorithms to determine if the user-provided value is sufficiently similar to the verified claim value.
 
 The implementation of fuzzy matching should consider factors such as:
-- Character similarity and common substitutions
-- Phonetic matching for names that sound similar but are spelled differently
-- Handling of diacritics and accents in international names
-- Case-insensitive matching
-- Tolerance for whitespace and punctuation variations
+
+    - Character similarity and common substitutions
+    - Phonetic matching for names that sound similar but are spelled differently
+    - Handling of diacritics and accents in international names
+    - Case-insensitive matching
+    - Tolerance for whitespace and punctuation variations
 
 When `fuzzy` is set to `false`, the OpenID Provider MUST perform exact matching between the user-provided value and the verified claim. This strict matching mode is appropriate for claims where precision is critical, such as government identification numbers, dates of birth, or other fields where exact correspondence is required for compliance or security purposes.
 
 The fuzzy matching capability enables a balance between user experience and verification accuracy, allowing legitimate users with minor data variations to successfully complete identity verification while maintaining the integrity of the verification process.
 
-### Example: POST /oauth2/par request
+### Example PAR Request: POST /oauth2/par
 
 ```
 POST /oauth/par HTTP/1.1
@@ -180,8 +183,7 @@ response_type=code
 &code_challenge=vT9bN3mL8dF1
 &code_challenge_method=S256
 &scope=openid+profile+identity_assurance
-&claims=%7B%22id_token%22%3A%7B%22verified_claims%22%3A%5B%7B%22verification%22%3A%7B%22trust_framework%22%3A%7B%22value%22%3A%22IDV_DELEGATED%22%2C%22essential%22%3Atrue%7D%2C%22assurance_level%22%3A%7B%22value%22%3A%22VERIFIED%22%2C%22essential%22%3Atrue%7D%7D%2C%22claims%22%3A%7B%22given_name%22%3A%7B%22value%22%3A%22John%22%2C%22fuzzy%22%3Atrue%7D%2C%22family_name%22%3A%7B%22value%22%3A%22Doe%22%2C%22fuzzy%22%3Afalse%7D%2C%22birthdate%22%3A%7B%22value%22%3A%221992-01-01%22%2C%22fuzzy%22%3Afalse%7D%7D%7D%5D%7D%7D
-&state=wLPOSunzNXu3ZXf8Rn
+&claims=%7B%22id_token%22%3A%7B%22verified_claims%22%3A%5B%7B...&state=wLPOSunzNXu3ZXf8Rn
 &login_hint=user_Ka8mN2pQ3xR7
 &redirect_uri=https://relyingparty.com/idp/identity-verification/callback
 ```
@@ -229,13 +231,13 @@ For clarity, the URL-encoded `claims` parameter above represents the following J
 
 Upon receiving a valid PAR request, the identity provider generates a unique `request_uri` that:
 
-- References the stored authorization request parameters
-- Has a limited lifetime as specified in the PAR response
-- Can be used in subsequent authorization requests without exposing sensitive parameters in URL query strings
+    - References the stored authorization request parameters
+    - Has a limited lifetime as specified in the PAR response
+    - Can be used in a subsequent authorization request without exposing sensitive parameters in URL query strings
 
 The use of PAR ensures that sensitive identity verification requirements are transmitted securely and are not exposed in browser history, server logs, or other potential information leakage vectors that could occur with traditional authorization request methods.
 
-### Example: POST /oauth2/par response
+### Example PAR Response: POST /oauth2/par
 
 ```
 HTTP/1.1 201 Created
@@ -256,20 +258,20 @@ For example if the PAR request cannot be completed due to an invalid or missing 
 
 ```
 HTTP/1.1 400 Bad Request
- Content-Type: application/json
- Cache-Control: no-cache, no-store
- {
+Content-Type: application/json
+Cache-Control: no-cache, no-store
+
+{
    "error": "invalid_request",
-   "error_description":
-     "The redirect_uri is not valid for the given client"
- }
+   "error_description": "The redirect_uri is not valid for the given client"
+}
 ```
 
 # Authorization Request with Request URI
 
 After successfully receiving the `request_uri` from the PAR endpoint, the relying party initiates the second phase of the identity verification flow by redirecting the user to the OP authorization endpoint. This redirect includes the `request_uri` parameter that references the previously pushed authorization request parameters.
 
-The relying party constructs an authorization request URL that directs the user's browser to the OP, where the identity verification process will be conducted. The use of the `request_uri` ensures that all sensitive verification requirements remain securely stored at the OP rather than being exposed in the authorization URL.
+The relying party constructs an authorization request URL that redirects the user's browser to the OP, where the identity verification process will be conducted. The use of the `request_uri` ensures that all sensitive verification requirements remain securely stored at the OP rather than being exposed in the authorization URL.
 
 ## Authorization Request Parameters
 
@@ -306,7 +308,7 @@ Upon receiving this request, the OP:
 4. Presents the appropriate identity verification interface to the user
 5. Conducts the verification process according to the specified trust framework and assurance level requirements
 
-The user completes the identity verification process at the OP, which may include document upload, biometric verification, or other verification methods as determined by the `IDV_DELEGATED` trust framework implementation.
+The user completes the identity verification process at the OP, which may include document upload, biometric verification, or other verification methods as required to meet the assurance requirements of the declared trust framework and assurance level from the PAR request.
 
 ## Authorization Response and Callback
 
@@ -333,7 +335,7 @@ After completing the identity verification process, the OP redirects the user ba
 
 ```
 HTTP/1.1 302 Found
-Location: https://relyingparty.com/idp/identity-verification/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=wLPOSunzNXu3ZXf8Rn&iss=https%3A%2F%2Fidv-vendor.com
+Location: https://relyingparty.com/idp/identity-verification/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=wLPOSunzNXu3ZXf8Rn
 ```
 
 ### Callback Processing
@@ -357,10 +359,11 @@ Location: https://relyingparty.com/idp/identity-verification/callback?error=acce
 ```
 
 Common error codes include:
-- `access_denied`: The user denied the identity verification request
-- `invalid_request`: The request was malformed or contained invalid parameters
-- `server_error`: The OP encountered an internal error during processing
-- `temporarily_unavailable`: The OP is temporarily unavailable
+
+    - `access_denied`: The user denied the identity verification request
+    - `invalid_request`: The request was malformed or contained invalid parameters
+    - `server_error`: The OP encountered an internal error during processing
+    - `temporarily_unavailable`: The OP is temporarily unavailable
 
 The relying party should handle these error conditions appropriately and provide meaningful feedback to the user about the identity verification status.
 
@@ -421,7 +424,7 @@ Cache-Control: no-cache, no-store
 {
   "token_type": "Bearer",
   "expires_in": 3600,
-  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lkdi12ZW5kb3IuY29tIiwic3ViIjoidXNlcl9LYThtTjJwUTN4UjciLCJhdWQiOiJhQjNrTDltUSIsImV4cCI6MTY0MjU1NzYwMCwiaWF0IjoxNjQyNTU0MDAwLCJub25jZSI6Im5vbmNlVmFsdWUiLCJ2ZXJpZmllZF9jbGFpbXMiOlt7InZlcmlmaWNhdGlvbiI6eyJ0cnVzdF9mcmFtZXdvcmsiOiJJRFYtREVMRUdBVEVEIiwiYXNzdXJhbmNlX2xldmVsIjoiVkVSSUZJRUQiLCJ2ZXJpZmljYXRpb25fcHJvY2VzcyI6IjEyMzQ1Njc4LWFiY2QtZWZnaC1oaWprLWxtbm9wcXJzdHV2dyIsInRpbWUiOiIyMDI0LTAxLTE1VDEwOjAwOjAwWiIsImV2aWRlbmNlIjpbeyJ0eXBlIjoiZG9jdW1lbnQiLCJtZXRob2QiOiJhdXRvbWF0ZWQiLCJkb2N1bWVudCI6eyJ0eXBlIjoiZHJpdmluZ19saWNlbnNlIiwiaXNzdWVyIjp7Im5hbWUiOiJDQSBETVYiLCJjb3VudHJ5IjoiVVMifX19XX0sImNsYWltcyI6eyJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiRG9lIiwiYmlydGhkYXRlIjoiMTk5Mi0wMS0wMSJ9fV19"
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...wMS0wMSJ9fV19"
 }
 ```
 
@@ -484,6 +487,7 @@ When the `id_token` JWT is decoded and verified, the payload contains the follow
 The ID token contains verified claims with the following structure that reflects the results of the identity verification process:
 
 - **verification**: Contains metadata about the verification process including:
+
   - `trust_framework`: Set to `IDV_DELEGATED` indicating the verification was delegated
   - `assurance_level`: Either `VERIFIED` or `FAILED` based on the verification outcome
   - `verification_process`: Unique identifier for the verification session
@@ -492,7 +496,7 @@ The ID token contains verified claims with the following structure that reflects
 
 - **claims**: Contains the verified identity attributes with their verified values, reflecting any fuzzy matching that was applied during the verification process
 
-The relying party can parse this ID token to extract the verified claims and determine whether the identity verification was successful based on the `assurance_level` value. This completes the identity verification flow, providing the relying party with the verified identity information needed for their use case.
+The relying party will parse the ID token to extract the verified claims and determine whether the identity verification was successful based on the `assurance_level` value. This completes the identity verification flow, providing the relying party with the verified identity information needed for their use case.
 
 ### Failed Identity Verification Results
 
