@@ -1046,11 +1046,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">IDA Profile for OIDC</td>
-<td class="right">July 2025</td>
+<td class="right">August 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Bermon &amp; Parecki</td>
-<td class="center">Expires 25 January 2026</td>
+<td class="center">Expires 15 February 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-openid-ida-security-profile-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-07-24" class="published">24 July 2025</time>
+<time datetime="2025-08-14" class="published">14 August 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-01-25">25 January 2026</time></dd>
+<dd class="expires"><time datetime="2026-02-15">15 February 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1122,7 +1122,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 25 January 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 15 February 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1495,11 +1495,14 @@ svg :is([fill="white"], [fill^="#fff"]) {
           <h4 id="name-example-par-request-post-oa">
 <a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-example-par-request-post-oa" class="section-name selfRef">Example PAR Request: POST /oauth2/par</a>
           </h4>
-<p id="section-2.1.2-1">```
-POST /oauth/par HTTP/1.1<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.2-2">Host: idv-vendor.com
-Content-Type: application/x-www-form-urlencoded<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.2-3">response_type=code
+<div class="alignLeft art-text artwork" id="section-2.1.2-1">
+<pre>
+POST /oauth/par HTTP/1.1
+
+Host: idv-vendor.com
+Content-Type: application/x-www-form-urlencoded
+
+response_type=code
 &amp;client_id=aB3kL9mQ
 &amp;client_secret=xP8nM2kQ7sR4
 &amp;code_challenge=vT9bN3mL8dF1
@@ -1508,14 +1511,16 @@ Content-Type: application/x-www-form-urlencoded<a href="#section-2.1.2-2" class=
 &amp;claims=%7B%22id_token%22%3A%7B%22verified_claims%22%3A%5B%7B...&amp;state=wLPOSunzNXu3ZXf8Rn
 &amp;login_hint=user_Ka8mN2pQ3xR7
 &amp;redirect_uri=https://relyingparty.com/idp/identity-verification/callback
-```<a href="#section-2.1.2-3" class="pilcrow">¶</a></p>
+</pre><a href="#section-2.1.2-1" class="pilcrow">¶</a>
+</div>
 <div id="url-decoded-claims-parameter">
 <section id="section-2.1.2.1">
             <h5 id="name-url-decoded-claims-paramete">
 <a href="#section-2.1.2.1" class="section-number selfRef">2.1.2.1. </a><a href="#name-url-decoded-claims-paramete" class="section-name selfRef">URL-decoded claims parameter</a>
             </h5>
 <p id="section-2.1.2.1-1">For clarity, the URL-encoded <code>claims</code> parameter above represents the following JSON structure:<a href="#section-2.1.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.2.1-2"><code>json
+<div class="lang-json sourcecode" id="section-2.1.2.1-2">
+<pre>
 {
   "id_token": {
     "verified_claims": [
@@ -1548,7 +1553,8 @@ Content-Type: application/x-www-form-urlencoded<a href="#section-2.1.2-2" class=
     ]
   }
 }
-</code><a href="#section-2.1.2.1-2" class="pilcrow">¶</a></p>
+</pre><a href="#section-2.1.2.1-2" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
@@ -1574,15 +1580,18 @@ Content-Type: application/x-www-form-urlencoded<a href="#section-2.1.2-2" class=
           <h4 id="name-example-par-response-post-o">
 <a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-example-par-response-post-o" class="section-name selfRef">Example PAR Response: POST /oauth2/par</a>
           </h4>
-<p id="section-2.2.1-1">```
+<div class="alignLeft art-text artwork" id="section-2.2.1-1">
+<pre>
 HTTP/1.1 201 Created
 Content-Type: application/json
-Cache-Control: no-cache, no-store<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.1-2">{
+Cache-Control: no-cache, no-store
+
+{
   "request_uri": "urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
   "expires_in": 60
 }
-```<a href="#section-2.2.1-2" class="pilcrow">¶</a></p>
+</pre><a href="#section-2.2.1-1" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
@@ -1594,15 +1603,18 @@ Cache-Control: no-cache, no-store<a href="#section-2.2.1-1" class="pilcrow">¶</
         </h3>
 <p id="section-2.3-1">If during the PAR request and error occurs, then the error response should follow specification OAuth 2.0 Pushed Authorization Requests <a href="https://www.rfc-editor.org/rfc/rfc9126.html#name-error-response">RFC 9126</a><a href="#section-2.3-1" class="pilcrow">¶</a></p>
 <p id="section-2.3-2">For example if the PAR request cannot be completed due to an invalid or missing parameter, then the error response would result in:<a href="#section-2.3-2" class="pilcrow">¶</a></p>
-<p id="section-2.3-3">```
+<div class="alignLeft art-text artwork" id="section-2.3-3">
+<pre>
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Cache-Control: no-cache, no-store<a href="#section-2.3-3" class="pilcrow">¶</a></p>
-<p id="section-2.3-4">{
+Cache-Control: no-cache, no-store
+
+{
    "error": "invalid_request",
    "error_description": "The redirect_uri is not valid for the given client"
 }
-```<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+</pre><a href="#section-2.3-3" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
@@ -1646,31 +1658,34 @@ Cache-Control: no-cache, no-store<a href="#section-2.3-3" class="pilcrow">¶</a>
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-example-get-oauth2-authoriz" class="section-name selfRef">Example: GET /oauth2/authorize</a>
         </h3>
 <p id="section-3.2-1">The relying party redirects the user to the OP's authorization endpoint using the <code>request_uri</code> obtained from the PAR response:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.2-2">```
+<div class="alignLeft art-text artwork" id="section-3.2-2">
+<pre>
 HTTP/1.1 302
-GET /oauth/authorize?client_id=aB3kL9mQ&amp;request_uri=urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c<a href="#section-3.2-2" class="pilcrow">¶</a></p>
-<p id="section-3.2-3">Host: idv-vendor.com
+GET /oauth/authorize?client_id=aB3kL9mQ&amp;request_uri=urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c
+
+Host: idv-vendor.com
 Content-Type: application/x-www-form-urlencoded
-```<a href="#section-3.2-3" class="pilcrow">¶</a></p>
-<p id="section-3.2-4">Upon receiving this request, the OP:<a href="#section-3.2-4" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-3.2-5">
-<li id="section-3.2-5.1">
-            <p id="section-3.2-5.1.1">Validates the <code>client_id</code> and <code>request_uri</code> parameters<a href="#section-3.2-5.1.1" class="pilcrow">¶</a></p>
+</pre><a href="#section-3.2-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.2-3">Upon receiving this request, the OP:<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.2-4">
+<li id="section-3.2-4.1">
+            <p id="section-3.2-4.1.1">Validates the <code>client_id</code> and <code>request_uri</code> parameters<a href="#section-3.2-4.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-3.2-5.2">
-            <p id="section-3.2-5.2.1">Retrieves the stored authorization request parameters associated with the <code>request_uri</code><a href="#section-3.2-5.2.1" class="pilcrow">¶</a></p>
+          <li id="section-3.2-4.2">
+            <p id="section-3.2-4.2.1">Retrieves the stored authorization request parameters associated with the <code>request_uri</code><a href="#section-3.2-4.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-3.2-5.3">
-            <p id="section-3.2-5.3.1">Initiates the identity verification process based on the <code>verified_claims</code> requirements<a href="#section-3.2-5.3.1" class="pilcrow">¶</a></p>
+          <li id="section-3.2-4.3">
+            <p id="section-3.2-4.3.1">Initiates the identity verification process based on the <code>verified_claims</code> requirements<a href="#section-3.2-4.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-3.2-5.4">
-            <p id="section-3.2-5.4.1">Presents the appropriate identity verification interface to the user<a href="#section-3.2-5.4.1" class="pilcrow">¶</a></p>
+          <li id="section-3.2-4.4">
+            <p id="section-3.2-4.4.1">Presents the appropriate identity verification interface to the user<a href="#section-3.2-4.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-3.2-5.5">
-            <p id="section-3.2-5.5.1">Conducts the verification process according to the specified trust framework and assurance level requirements<a href="#section-3.2-5.5.1" class="pilcrow">¶</a></p>
+          <li id="section-3.2-4.5">
+            <p id="section-3.2-4.5.1">Conducts the verification process according to the specified trust framework and assurance level requirements<a href="#section-3.2-4.5.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-3.2-6">The user completes the identity verification process at the OP, which may include document upload, biometric verification, or other verification methods as required to meet the assurance requirements of the declared trust framework and assurance level from the PAR request.<a href="#section-3.2-6" class="pilcrow">¶</a></p>
+<p id="section-3.2-5">The user completes the identity verification process at the OP, which may include document upload, biometric verification, or other verification methods as required to meet the assurance requirements of the declared trust framework and assurance level from the PAR request.<a href="#section-3.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-response-and-callback">
@@ -1711,10 +1726,12 @@ Content-Type: application/x-www-form-urlencoded
 <a href="#section-3.3.2" class="section-number selfRef">3.3.2. </a><a href="#name-example-authorization-respo" class="section-name selfRef">Example: Authorization Response Redirect</a>
           </h4>
 <p id="section-3.3.2-1">After completing the identity verification process, the OP redirects the user back to the relying party:<a href="#section-3.3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.3.2-2"><code>
+<div class="alignLeft art-text artwork" id="section-3.3.2-2">
+<pre>
 HTTP/1.1 302 Found
 Location: https://relyingparty.com/idp/identity-verification/callback?code=SplxlOBeZQQYbYS6WxSbIA&amp;state=wLPOSunzNXu3ZXf8Rn
-</code><a href="#section-3.3.2-2" class="pilcrow">¶</a></p>
+</pre><a href="#section-3.3.2-2" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="callback-processing">
@@ -1746,10 +1763,12 @@ Location: https://relyingparty.com/idp/identity-verification/callback?code=Splxl
 <a href="#section-3.3.4" class="section-number selfRef">3.3.4. </a><a href="#name-error-handling-in-authoriza" class="section-name selfRef">Error Handling in Authorization Response</a>
           </h4>
 <p id="section-3.3.4-1">If the identity verification process fails or encounters an error, the OP may redirect the user back to the relying party with error parameters instead of an authorization code:<a href="#section-3.3.4-1" class="pilcrow">¶</a></p>
-<p id="section-3.3.4-2"><code>
+<div class="alignLeft art-text artwork" id="section-3.3.4-2">
+<pre>
 HTTP/1.1 302 Found
 Location: https://relyingparty.com/idp/identity-verification/callback?error=access_denied&amp;error_description=The+user+denied+the+request&amp;state=wLPOSunzNXu3ZXf8Rn
-</code><a href="#section-3.3.4-2" class="pilcrow">¶</a></p>
+</pre><a href="#section-3.3.4-2" class="pilcrow">¶</a>
+</div>
 <p id="section-3.3.4-3">Common error codes include:<a href="#section-3.3.4-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.3.4-4">
 <pre>
@@ -1819,17 +1838,20 @@ Location: https://relyingparty.com/idp/identity-verification/callback?error=acce
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-example-post-oauth2-token" class="section-name selfRef">Example: POST /oauth2/token</a>
         </h3>
 <p id="section-4.2-1">The relying party exchanges the authorization code for tokens containing the identity verification results:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2-2">```
+<div class="alignLeft art-text artwork" id="section-4.2-2">
+<pre>
 POST /oauth/token HTTP/1.1
 Host: idv-vendor.com
-Content-Type: application/x-www-form-urlencoded<a href="#section-4.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.2-3">grant_type=authorization_code
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
 &amp;code=SplxlOBeZQQYbYS6WxSbIA
 &amp;client_id=aB3kL9mQ
 &amp;client_secret=xP8nM2kQ7sR4
 &amp;redirect_uri=https://relyingparty.com/idp/identity-verification/callback
 &amp;code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
-```<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+</pre><a href="#section-4.2-2" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="token-response-with-verified-claims">
@@ -1838,16 +1860,19 @@ Content-Type: application/x-www-form-urlencoded<a href="#section-4.2-2" class="p
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-token-response-with-verifie" class="section-name selfRef">Token Response with Verified Claims</a>
         </h3>
 <p id="section-4.3-1">The OP responds with an ID token that contains the results of the identity verification process. The ID token includes verified claims structured according to the OIDC4IA specification with the extensions defined in this profile:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.3-2">```
+<div class="alignLeft art-text artwork" id="section-4.3-2">
+<pre>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Cache-Control: no-cache, no-store<a href="#section-4.3-2" class="pilcrow">¶</a></p>
-<p id="section-4.3-3">{
+Cache-Control: no-cache, no-store
+
+{
   "token_type": "Bearer",
   "expires_in": 3600,
   "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...wMS0wMSJ9fV19"
 }
-```<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+</pre><a href="#section-4.3-2" class="pilcrow">¶</a>
+</div>
 <div id="id-token-structure">
 <section id="section-4.3.1">
           <h4 id="name-id-token-structure">
@@ -1860,7 +1885,8 @@ Cache-Control: no-cache, no-store<a href="#section-4.3-2" class="pilcrow">¶</a>
 <a href="#section-4.3.1.1" class="section-number selfRef">4.3.1.1. </a><a href="#name-decoded-jwt-payload" class="section-name selfRef">Decoded JWT Payload</a>
             </h5>
 <p id="section-4.3.1.1-1">When the <code>id_token</code> JWT is decoded and verified, the payload contains the following structure with all required attributes and verified claims results:<a href="#section-4.3.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.1.1-2"><code>json
+<div class="lang-json sourcecode" id="section-4.3.1.1-2">
+<pre>
 {
   "iss": "https://idv-vendor.com",
   "sub": "user_Ka8mN2pQ3xR7",
@@ -1904,7 +1930,8 @@ Cache-Control: no-cache, no-store<a href="#section-4.3-2" class="pilcrow">¶</a>
     }
   ]
 }
-</code><a href="#section-4.3.1.1-2" class="pilcrow">¶</a></p>
+</pre><a href="#section-4.3.1.1-2" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
@@ -1971,7 +1998,8 @@ Cache-Control: no-cache, no-store<a href="#section-4.3-2" class="pilcrow">¶</a>
 <a href="#section-4.4.1.2" class="section-number selfRef">4.4.1.2. </a><a href="#name-example-failed-verification" class="section-name selfRef">Example: Failed Verification Response</a>
             </h5>
 <p id="section-4.4.1.2-1">When verification fails, the decoded JWT payload would contain a <code>null</code> value for the claim (or claims) that could not be verified:<a href="#section-4.4.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.4.1.2-2"><code>json
+<div class="lang-json sourcecode" id="section-4.4.1.2-2">
+<pre>
 {
   "iss": "https://idv-vendor.com",
   "sub": "user_Ka8mN2pQ3xR7",
@@ -2009,9 +2037,11 @@ Cache-Control: no-cache, no-store<a href="#section-4.3-2" class="pilcrow">¶</a>
     }
   ]
 }
-</code><a href="#section-4.4.1.2-2" class="pilcrow">¶</a></p>
+</pre><a href="#section-4.4.1.2-2" class="pilcrow">¶</a>
+</div>
 <p id="section-4.4.1.2-3">Alternatively, with omission approach, exclude the claim (or claims) that could not be verified<a href="#section-4.4.1.2-3" class="pilcrow">¶</a></p>
-<p id="section-4.4.1.2-4"><code>json
+<div class="lang-json sourcecode" id="section-4.4.1.2-4">
+<pre>
 {
   "iss": "https://idv-vendor.com",
   "sub": "user_Ka8mN2pQ3xR7",
@@ -2045,7 +2075,8 @@ Cache-Control: no-cache, no-store<a href="#section-4.3-2" class="pilcrow">¶</a>
     }
   ]
 }
-</code><a href="#section-4.4.1.2-4" class="pilcrow">¶</a></p>
+</pre><a href="#section-4.4.1.2-4" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="handling-failed-verification">

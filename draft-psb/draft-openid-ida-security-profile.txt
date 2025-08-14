@@ -5,7 +5,7 @@
 eKYC-IDA                                                       S. Bermon
 Internet-Draft                                                A. Parecki
 Intended status: Informational                                      Okta
-Expires: 25 January 2026                                    24 July 2025
+Expires: 15 February 2026                                 14 August 2025
 
 
              Identity Assurance Profile for OpenID Connect
@@ -61,7 +61,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 January 2026.
+   This Internet-Draft will expire on 15 February 2026.
 
 Copyright Notice
 
@@ -377,29 +377,58 @@ Table of Contents
 
 2.1.2.  Example PAR Request: POST /oauth2/par
 
-   ``` POST /oauth/par HTTP/1.1
+POST /oauth/par HTTP/1.1
 
-   Host: idv-vendor.com Content-Type: application/x-www-form-urlencoded
+Host: idv-vendor.com
+Content-Type: application/x-www-form-urlencoded
 
-   response_type=code &client_id=aB3kL9mQ &client_secret=xP8nM2kQ7sR4
-   &code_challenge=vT9bN3mL8dF1 &code_challenge_method=S256
-   &scope=openid+profile+identity_assurance &claims=%7B%22id_token%22%3A
-   %7B%22verified_claims%22%3A%5B%7B...&state=wLPOSunzNXu3ZXf8Rn
-   &login_hint=user_Ka8mN2pQ3xR7
-   &redirect_uri=https://relyingparty.com/idp/identity-verification/
-   callback ```
+response_type=code
+&client_id=aB3kL9mQ
+&client_secret=xP8nM2kQ7sR4
+&code_challenge=vT9bN3mL8dF1
+&code_challenge_method=S256
+&scope=openid+profile+identity_assurance
+&claims=%7B%22id_token%22%3A%7B%22verified_claims%22%3A%5B%7B...&state=wLPOSunzNXu3ZXf8Rn
+&login_hint=user_Ka8mN2pQ3xR7
+&redirect_uri=https://relyingparty.com/idp/identity-verification/callback
 
 2.1.2.1.  URL-decoded claims parameter
 
    For clarity, the URL-encoded claims parameter above represents the
    following JSON structure:
 
-   json { "id_token": { "verified_claims": [ { "verification": {
-   "trust_framework": { "value": "IDV_DELEGATED", "essential": true },
-   "assurance_level": { "value": "VERIFIED", "essential": true } },
-   "claims": { "given_name": { "value": "John", "fuzzy": true },
-   "family_name": { "value": "Doe", "fuzzy": false }, "birthdate": {
-   "value": "1992-01-01", "fuzzy": false } } } ] } }
+   {
+     "id_token": {
+       "verified_claims": [
+         {
+           "verification": {
+             "trust_framework": {
+               "value": "IDV_DELEGATED",
+               "essential": true
+             },
+             "assurance_level": {
+               "value": "VERIFIED",
+               "essential": true
+             }
+           },
+           "claims": {
+             "given_name": {
+               "value": "John",
+               "fuzzy": true
+             },
+             "family_name": {
+               "value": "Doe",
+               "fuzzy": false
+             },
+             "birthdate": {
+               "value": "1992-01-01",
+               "fuzzy": false
+             }
+           }
+         }
+       ]
+     }
+   }
 
 2.2.  PAR Response
 
@@ -417,12 +446,14 @@ Table of Contents
 
 2.2.1.  Example PAR Response: POST /oauth2/par
 
-   ``` HTTP/1.1 201 Created Content-Type: application/json Cache-
-   Control: no-cache, no-store
+HTTP/1.1 201 Created
+Content-Type: application/json
+Cache-Control: no-cache, no-store
 
-   { "request_uri":
-   "urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
-   "expires_in": 60 } ```
+{
+  "request_uri": "urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
+  "expires_in": 60
+}
 
 2.3.  Error Handling
 
@@ -434,11 +465,14 @@ Table of Contents
    For example if the PAR request cannot be completed due to an invalid
    or missing parameter, then the error response would result in:
 
-   ``` HTTP/1.1 400 Bad Request Content-Type: application/json Cache-
-   Control: no-cache, no-store
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Cache-Control: no-cache, no-store
 
-   { "error": "invalid_request", "error_description": "The redirect_uri
-   is not valid for the given client" } ```
+{
+   "error": "invalid_request",
+   "error_description": "The redirect_uri is not valid for the given client"
+}
 
 3.  Authorization Request with Request URI
 
@@ -476,11 +510,11 @@ Table of Contents
    The relying party redirects the user to the OP's authorization
    endpoint using the request_uri obtained from the PAR response:
 
-   ``` HTTP/1.1 302 GET /oauth/authorize?client_id=aB3kL9mQ&request_uri=
-   urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c
+HTTP/1.1 302
+GET /oauth/authorize?client_id=aB3kL9mQ&request_uri=urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c
 
-   Host: idv-vendor.com Content-Type: application/x-www-form-urlencoded
-   ```
+Host: idv-vendor.com
+Content-Type: application/x-www-form-urlencoded
 
    Upon receiving this request, the OP:
 
@@ -538,9 +572,8 @@ Table of Contents
    After completing the identity verification process, the OP redirects
    the user back to the relying party:
 
-   HTTP/1.1 302 Found Location: https://relyingparty.com/idp/identity-
-   verification/
-   callback?code=SplxlOBeZQQYbYS6WxSbIA&state=wLPOSunzNXu3ZXf8Rn
+HTTP/1.1 302 Found
+Location: https://relyingparty.com/idp/identity-verification/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=wLPOSunzNXu3ZXf8Rn
 
 3.3.3.  Callback Processing
 
@@ -569,9 +602,8 @@ Table of Contents
    the OP may redirect the user back to the relying party with error
    parameters instead of an authorization code:
 
-   HTTP/1.1 302 Found Location: https://relyingparty.com/idp/identity-
-   verification/callback?error=access_denied&error_description=The+user+
-   denied+the+request&state=wLPOSunzNXu3ZXf8Rn
+HTTP/1.1 302 Found
+Location: https://relyingparty.com/idp/identity-verification/callback?error=access_denied&error_description=The+user+denied+the+request&state=wLPOSunzNXu3ZXf8Rn
 
    Common error codes include:
 
@@ -625,14 +657,16 @@ Table of Contents
    The relying party exchanges the authorization code for tokens
    containing the identity verification results:
 
-   ``` POST /oauth/token HTTP/1.1 Host: idv-vendor.com Content-Type:
-   application/x-www-form-urlencoded
+POST /oauth/token HTTP/1.1
+Host: idv-vendor.com
+Content-Type: application/x-www-form-urlencoded
 
-   grant_type=authorization_code &code=SplxlOBeZQQYbYS6WxSbIA
-   &client_id=aB3kL9mQ &client_secret=xP8nM2kQ7sR4
-   &redirect_uri=https://relyingparty.com/idp/identity-verification/
-   callback &code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
-   ```
+grant_type=authorization_code
+&code=SplxlOBeZQQYbYS6WxSbIA
+&client_id=aB3kL9mQ
+&client_secret=xP8nM2kQ7sR4
+&redirect_uri=https://relyingparty.com/idp/identity-verification/callback
+&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
 
 4.3.  Token Response with Verified Claims
 
@@ -641,11 +675,15 @@ Table of Contents
    structured according to the OIDC4IA specification with the extensions
    defined in this profile:
 
-   ``` HTTP/1.1 200 OK Content-Type: application/json Cache-Control: no-
-   cache, no-store
+   HTTP/1.1 200 OK
+   Content-Type: application/json
+   Cache-Control: no-cache, no-store
 
-   { "token_type": "Bearer", "expires_in": 3600, "id_token":
-   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...wMS0wMSJ9fV19" } ```
+   {
+     "token_type": "Bearer",
+     "expires_in": 3600,
+     "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...wMS0wMSJ9fV19"
+   }
 
 4.3.1.  ID Token Structure
 
@@ -660,19 +698,49 @@ Table of Contents
    the following structure with all required attributes and verified
    claims results:
 
-   json { "iss": "https://idv-vendor.com", "sub": "user_Ka8mN2pQ3xR7",
-   "aud": "aB3kL9mQ", "exp": 1642557600, "iat": 1642554000, "auth_time":
-   1642553800, "nonce": "nonceValue", "acr":
-   "urn:mace:incommon:iap:silver", "amr": ["pwd", "otp"], "azp":
-   "aB3kL9mQ", "verified_claims": [ { "verification": {
-   "trust_framework": "IDV_DELEGATED", "assurance_level": "VERIFIED",
-   "verification_process": "12345678-abcd-efgh-hijk-lmnopqrstuvw",
-   "time": "2024-01-15T10:00:00Z", "evidence": [ { "type": "document",
-   "method": "automated", "document": { "type": "driving_license",
-   "issuer": { "name": "CA DMV", "country": "US" }, "number":
-   "D1234567", "date_of_issuance": "2020-01-15", "date_of_expiry":
-   "2028-01-15" } } ] }, "claims": { "given_name": "John",
-   "family_name": "Doe", "birthdate": "1992-01-01" } } ] }
+   {
+     "iss": "https://idv-vendor.com",
+     "sub": "user_Ka8mN2pQ3xR7",
+     "aud": "aB3kL9mQ",
+     "exp": 1642557600,
+     "iat": 1642554000,
+     "auth_time": 1642553800,
+     "nonce": "nonceValue",
+     "acr": "urn:mace:incommon:iap:silver",
+     "amr": ["pwd", "otp"],
+     "azp": "aB3kL9mQ",
+     "verified_claims": [
+       {
+         "verification": {
+           "trust_framework": "IDV_DELEGATED",
+           "assurance_level": "VERIFIED",
+           "verification_process": "12345678-abcd-efgh-hijk-lmnopqrstuvw",
+           "time": "2024-01-15T10:00:00Z",
+           "evidence": [
+             {
+               "type": "document",
+               "method": "automated",
+               "document": {
+                 "type": "driving_license",
+                 "issuer": {
+                   "name": "CA DMV",
+                   "country": "US"
+                 },
+                 "number": "D1234567",
+                 "date_of_issuance": "2020-01-15",
+                 "date_of_expiry": "2028-01-15"
+               }
+             }
+           ]
+         },
+         "claims": {
+           "given_name": "John",
+           "family_name": "Doe",
+           "birthdate": "1992-01-01"
+         }
+       }
+     ]
+   }
 
 4.4.  ID Token Claims Structure
 
@@ -730,29 +798,80 @@ Table of Contents
    When verification fails, the decoded JWT payload would contain a null
    value for the claim (or claims) that could not be verified:
 
-   json { "iss": "https://idv-vendor.com", "sub": "user_Ka8mN2pQ3xR7",
-   "aud": "aB3kL9mQ", "exp": 1642557600, "iat": 1642554000, "auth_time":
-   1642553800, "nonce": "nonceValue", "verified_claims": [ {
-   "verification": { "trust_framework": "IDV_DELEGATED",
-   "assurance_level": "FAILED", "verification_process": "12345678-abcd-
-   efgh-hijk-lmnopqrstuvw", "time": "2024-01-15T10:00:00Z", "evidence":
-   [ { "type": "document", "method": "automated", "document": { "type":
-   "driving_license", "issuer": { "name": "CA DMV", "country": "US" } }
-   } ] }, "claims": { "given_name": "John", "family_name": "Doe",
-   "birthdate": null } } ] }
+   {
+     "iss": "https://idv-vendor.com",
+     "sub": "user_Ka8mN2pQ3xR7",
+     "aud": "aB3kL9mQ",
+     "exp": 1642557600,
+     "iat": 1642554000,
+     "auth_time": 1642553800,
+     "nonce": "nonceValue",
+     "verified_claims": [
+       {
+         "verification": {
+           "trust_framework": "IDV_DELEGATED",
+           "assurance_level": "FAILED",
+           "verification_process": "12345678-abcd-efgh-hijk-lmnopqrstuvw",
+           "time": "2024-01-15T10:00:00Z",
+           "evidence": [
+             {
+               "type": "document",
+               "method": "automated",
+               "document": {
+                 "type": "driving_license",
+                 "issuer": {
+                   "name": "CA DMV",
+                   "country": "US"
+                 }
+               }
+             }
+           ]
+         },
+         "claims": {
+           "given_name": "John",
+           "family_name": "Doe",
+           "birthdate": null
+         }
+       }
+     ]
+   }
 
    Alternatively, with omission approach, exclude the claim (or claims)
    that could not be verified
 
-   json { "iss": "https://idv-vendor.com", "sub": "user_Ka8mN2pQ3xR7",
-   "aud": "aB3kL9mQ", "exp": 1642557600, "iat": 1642554000, "auth_time":
-   1642553800, "nonce": "nonceValue", "verified_claims": [ {
-   "verification": { "trust_framework": "IDV_DELEGATED",
-   "assurance_level": "FAILED", "verification_process": "12345678-abcd-
-   efgh-hijk-lmnopqrstuvw", "time": "2024-01-15T10:00:00Z", "evidence":
-   [ { "type": "document", "method": "automated", "document": { "type":
-   "driving_license", "issuer": { "name": "CA DMV", "country": "US" } }
-   } ] }, "claims": {} } ] }
+   {
+     "iss": "https://idv-vendor.com",
+     "sub": "user_Ka8mN2pQ3xR7",
+     "aud": "aB3kL9mQ",
+     "exp": 1642557600,
+     "iat": 1642554000,
+     "auth_time": 1642553800,
+     "nonce": "nonceValue",
+     "verified_claims": [
+       {
+         "verification": {
+           "trust_framework": "IDV_DELEGATED",
+           "assurance_level": "FAILED",
+           "verification_process": "12345678-abcd-efgh-hijk-lmnopqrstuvw",
+           "time": "2024-01-15T10:00:00Z",
+           "evidence": [
+             {
+               "type": "document",
+               "method": "automated",
+               "document": {
+                 "type": "driving_license",
+                 "issuer": {
+                   "name": "CA DMV",
+                   "country": "US"
+                 }
+               }
+             }
+           ]
+         },
+         "claims": {}
+       }
+     ]
+   }
 
 4.4.1.3.  Handling Failed Verification
 
