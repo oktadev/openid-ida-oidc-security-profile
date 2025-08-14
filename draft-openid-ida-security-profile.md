@@ -171,7 +171,7 @@ The fuzzy matching capability enables a balance between user experience and veri
 
 ### Example PAR Request: POST /oauth2/par
 
-```
+~~~
 POST /oauth/par HTTP/1.1
 
 Host: idv-vendor.com
@@ -186,13 +186,13 @@ response_type=code
 &claims=%7B%22id_token%22%3A%7B%22verified_claims%22%3A%5B%7B...&state=wLPOSunzNXu3ZXf8Rn
 &login_hint=user_Ka8mN2pQ3xR7
 &redirect_uri=https://relyingparty.com/idp/identity-verification/callback
-```
+~~~
 
 #### URL-decoded claims parameter
 
 For clarity, the URL-encoded `claims` parameter above represents the following JSON structure:
 
-```json
+~~~ json
 {
   "id_token": {
     "verified_claims": [
@@ -225,7 +225,7 @@ For clarity, the URL-encoded `claims` parameter above represents the following J
     ]
   }
 }
-```
+~~~
 
 ## PAR Response
 
@@ -239,7 +239,7 @@ The use of PAR ensures that sensitive identity verification requirements are tra
 
 ### Example PAR Response: POST /oauth2/par
 
-```
+~~~
 HTTP/1.1 201 Created
 Content-Type: application/json
 Cache-Control: no-cache, no-store
@@ -248,7 +248,7 @@ Cache-Control: no-cache, no-store
   "request_uri": "urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
   "expires_in": 60
 }
-```
+~~~
 
 ## Error Handling
 
@@ -256,7 +256,7 @@ If during the PAR request and error occurs, then the error response should follo
 
 For example if the PAR request cannot be completed due to an invalid or missing parameter, then the error response would result in:
 
-```
+~~~
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
 Cache-Control: no-cache, no-store
@@ -265,7 +265,7 @@ Cache-Control: no-cache, no-store
    "error": "invalid_request",
    "error_description": "The redirect_uri is not valid for the given client"
 }
-```
+~~~
 
 # Authorization Request with Request URI
 
@@ -292,13 +292,13 @@ Additional parameters from the original authorization request (such as `state`, 
 
 The relying party redirects the user to the OP's authorization endpoint using the `request_uri` obtained from the PAR response:
 
-```
+~~~
 HTTP/1.1 302
 GET /oauth/authorize?client_id=aB3kL9mQ&request_uri=urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c
 
 Host: idv-vendor.com
 Content-Type: application/x-www-form-urlencoded
-```
+~~~
 
 Upon receiving this request, the OP:
 
@@ -333,10 +333,10 @@ The OP redirects the user to the relying party's callback endpoint with the foll
 
 After completing the identity verification process, the OP redirects the user back to the relying party:
 
-```
+~~~
 HTTP/1.1 302 Found
 Location: https://relyingparty.com/idp/identity-verification/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=wLPOSunzNXu3ZXf8Rn
-```
+~~~
 
 ### Callback Processing
 
@@ -353,10 +353,10 @@ The relying party can then proceed to exchange the authorization code for an ID 
 
 If the identity verification process fails or encounters an error, the OP may redirect the user back to the relying party with error parameters instead of an authorization code:
 
-```
+~~~
 HTTP/1.1 302 Found
 Location: https://relyingparty.com/idp/identity-verification/callback?error=access_denied&error_description=The+user+denied+the+request&state=wLPOSunzNXu3ZXf8Rn
-```
+~~~
 
 Common error codes include:
 
@@ -399,7 +399,7 @@ The relying party makes a POST request to the OP's token endpoint to exchange th
 
 The relying party exchanges the authorization code for tokens containing the identity verification results:
 
-```
+~~~
 POST /oauth/token HTTP/1.1
 Host: idv-vendor.com
 Content-Type: application/x-www-form-urlencoded
@@ -410,13 +410,13 @@ grant_type=authorization_code
 &client_secret=xP8nM2kQ7sR4
 &redirect_uri=https://relyingparty.com/idp/identity-verification/callback
 &code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
-```
+~~~
 
 ## Token Response with Verified Claims
 
 The OP responds with an ID token that contains the results of the identity verification process. The ID token includes verified claims structured according to the OIDC4IA specification with the extensions defined in this profile:
 
-```
+~~~
 HTTP/1.1 200 OK
 Content-Type: application/json
 Cache-Control: no-cache, no-store
@@ -426,7 +426,7 @@ Cache-Control: no-cache, no-store
   "expires_in": 3600,
   "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...wMS0wMSJ9fV19"
 }
-```
+~~~
 
 ### ID Token Structure
 
@@ -436,7 +436,7 @@ The `id_token` is a signed JWT (JSON Web Token) that contains the identity verif
 
 When the `id_token` JWT is decoded and verified, the payload contains the following structure with all required attributes and verified claims results:
 
-```json
+~~~ json
 {
   "iss": "https://idv-vendor.com",
   "sub": "user_Ka8mN2pQ3xR7",
@@ -480,7 +480,7 @@ When the `id_token` JWT is decoded and verified, the payload contains the follow
     }
   ]
 }
-```
+~~~
 
 ## ID Token Claims Structure
 
@@ -513,7 +513,7 @@ According to the OpenID Connect for Identity Assurance specification, unverified
 
 When verification fails, the decoded JWT payload would contain a `null` value for the claim (or claims) that could not be verified:
 
-```json
+~~~ json
 {
   "iss": "https://idv-vendor.com",
   "sub": "user_Ka8mN2pQ3xR7",
@@ -551,11 +551,11 @@ When verification fails, the decoded JWT payload would contain a `null` value fo
     }
   ]
 }
-```
+~~~
 
 Alternatively, with omission approach, exclude the claim (or claims) that could not be verified
 
-```json
+~~~ json
 {
   "iss": "https://idv-vendor.com",
   "sub": "user_Ka8mN2pQ3xR7",
@@ -589,7 +589,7 @@ Alternatively, with omission approach, exclude the claim (or claims) that could 
     }
   ]
 }
-```
+~~~
 
 #### Handling Failed Verification
 
