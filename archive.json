@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-01-25T00:29:42.322932+00:00",
+  "timestamp": "2026-01-27T00:28:29.022895+00:00",
   "repo": "oktadev/openid-ida-oidc-security-profile",
   "labels": [
     {
@@ -58,12 +58,12 @@
       "url": "https://github.com/oktadev/openid-ida-oidc-security-profile/pull/1",
       "state": "MERGED",
       "author": "scotty-psb",
-      "authorAssociation": "COLLABORATOR",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "# Identity Assurance Profile for OpenID Connect - Complete Draft Specification\r\n\r\nThis pull request introduces a comprehensive Identity Assurance Profile for OpenID Connect that standardizes identity verification workflows between relying parties and OpenID providers.\r\n\r\n## Key Features\r\n\r\nThis specification enables organizations to integrate with multiple identity verification providers using a single, standardized OpenID Connect-based approach, significantly reducing development overhead and improving security posture for identity assurance use cases.\r\n\r\n### Core Profile Components:\r\n\r\n- **Three-phase workflow**: PAR request \u2192 Authorization with request_uri \u2192 Token exchange for verification results\r\n- **Mandatory PAR usage** for secure transmission of identity verification requirements\r\n- **Complete parameter specifications** for each phase with detailed examples\r\n\r\n### OIDC4IA Extensions:\r\n\r\n- **IDV_DELEGATED trust framework**: Enables delegation of identity verification to specialized providers with VERIFIED/FAILED assurance levels\r\n- **Fuzzy name matching**: Accommodates minor discrepancies in user-provided data while maintaining verification integrity\r\n\r\n### Technical Implementation:\r\n\r\n- Detailed request/response examples with URL-encoded claims parameters\r\n- Complete JWT structure documentation for ID tokens with verified claims\r\n- Comprehensive error handling for both successful and failed verification scenarios\r\n- Support for both claim omission and null value approaches for unverified attributes\r\n\r\n### Benefits\r\n\r\n- **Reduces integration complexity** by providing standardized interfaces across identity verification providers\r\n- **Improves interoperability** through consistent communication patterns\r\n- **Enhances security** via mandatory PAR usage and structured verification workflows\r\n- **Maintains compliance** with existing OIDC4IA specifications while adding practical extensions \r\n",
       "createdAt": "2025-07-24T14:43:22Z",
-      "updatedAt": "2025-08-14T14:54:43Z",
+      "updatedAt": "2026-01-25T13:37:16Z",
       "baseRepository": "oktadev/openid-ida-oidc-security-profile",
       "baseRefName": "main",
       "baseRefOid": "bede1be6abec3db0895a2d199a033d1687a85bc7",
@@ -77,7 +77,21 @@
         "oid": "977409b498cb84078c4d6090a54987ae8250da46"
       },
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOPF3DOc7cxMCx",
+          "commit": {
+            "abbreviatedOid": "a2d3741"
+          },
+          "author": "pbr6vdr2c5-design",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "Love it",
+          "createdAt": "2026-01-25T13:37:16Z",
+          "updatedAt": "2026-01-25T13:37:16Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
